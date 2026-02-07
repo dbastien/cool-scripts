@@ -1,3 +1,26 @@
+# PS7+ friendly: keep current terminal alive, run UI in a fresh STA pwsh
+function Start-WpfChildProcess {
+    param([string[]]$ArgsFromCaller)
+
+    $pwsh = (Get-Process -Id $PID).Path
+    $argList = @(
+        '-NoProfile',
+        '-ExecutionPolicy', 'Bypass',
+        '-Sta',
+        '-File', $PSCommandPath
+    ) + $ArgsFromCaller
+
+    Start-Process -FilePath $pwsh -ArgumentList $argList | Out-Null
+}
+
+# If we're not already the UI child, spawn it and stop THIS invocation (without killing the terminal)
+if (-not $env:SHELLMENUMGR_UI_CHILD) {
+    $env:SHELLMENUMGR_UI_CHILD = '1'
+    Start-WpfChildProcess -ArgsFromCaller $MyInvocation.UnboundArguments
+    return
+}
+
+
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName WindowsBase
@@ -34,81 +57,26 @@ $managedTag   = '1'
 
 $script:UI = [pscustomobject]@{
     App          = $null
-    Dispatcher   = $null
     Window       = $null
     Elements     = @{}
-    TabState     = @{
-        New     = @{ Loaded=$false; Dirty=$true; Loading=$false }
-        SendTo  = @{ Loaded=$false; Dirty=$true; Loading=$false }
-        Verbs   = @{ Loaded=$false; Dirty=$true; Loading=$false }
-        Context = @{ Loaded=$false; Dirty=$true; Loading=$false }
-    }
     ResolvedProg = $null
 }
 
-# Dispatcher delegates
-$script:UiBeginDelegate = [System.Action[object]]{
-    param($payload)
-    if ($payload -is [scriptblock]) { $payload.InvokeReturnAsIs() | Out-Null }
-}
-$script:UiInvokeDelegate = [System.Func[object, object]]{
-    param($payload)
-    if ($payload -is [scriptblock]) { return $payload.InvokeReturnAsIs() }
-    return $null
-}
-
-# UI helpers
-function UI-Begin([scriptblock]$sb) {
-    try {
-        $d = $script:UI.Dispatcher
-        if (-not $d) { $sb.InvokeReturnAsIs() | Out-Null; return }
-        if ($d.HasShutdownStarted -or $d.HasShutdownFinished) { return }
-        $null = $d.BeginInvoke($script:UiBeginDelegate, $sb)
-    } catch { }
-}
-function UI-Invoke([scriptblock]$sb) {
-    try {
-        $d = $script:UI.Dispatcher
-        if (-not $d) { return $sb.InvokeReturnAsIs() }
-        if ($d.HasShutdownStarted -or $d.HasShutdownFinished) { return $null }
-        if ($d.CheckAccess()) { return $sb.InvokeReturnAsIs() }
-        return $d.Invoke($script:UiInvokeDelegate, $sb)
-    } catch { return $null }
-}
-function UI-SetStatus([string]$msg) {
-    UI-Begin {
-        $t = $script:UI.Elements['StatusText']
-        if ($t) { $t.Text = $msg }
-    }
-}
-function UI-SetGrid([string]$gridName, [object]$items) {
-    UI-Begin {
-        $g = $script:UI.Elements[$gridName]
-        if ($g) { $g.ItemsSource = $items }
-    }
-}
-function UI-Require([string]$name) {
-    $c = $script:UI.Elements[$name]
-    if (-not $c) { throw ("Missing control named '{0}' (XAML mismatch?)" -f $name) }
-    $c
-}
-
 function Msg-Confirm([string]$msg, [string]$title='Confirm') {
-    $r = UI-Invoke {
-        try {
-            [System.Windows.MessageBox]::Show($msg, $title,
-                [System.Windows.MessageBoxButton]::YesNo,
-                [System.Windows.MessageBoxImage]::Question)
-        } catch {
-            [System.Windows.MessageBoxResult]::No
-        }
+    try {
+        $r = [System.Windows.MessageBox]::Show($msg, $title,
+            [System.Windows.MessageBoxButton]::YesNo,
+            [System.Windows.MessageBoxImage]::Question)
+        $r -eq [System.Windows.MessageBoxResult]::Yes
+    } catch {
+        $false
     }
-    $r -eq [System.Windows.MessageBoxResult]::Yes
 }
 function Msg-Show([string]$msg, [string]$title, [System.Windows.MessageBoxImage]$icon) {
-    UI-Begin {
-        try { [System.Windows.MessageBox]::Show($msg, $title, [System.Windows.MessageBoxButton]::OK, $icon) | Out-Null }
-        catch { $m = "{0}: {1}" -f $title,$msg; if ($icon -eq [System.Windows.MessageBoxImage]::Error) { Write-Error $m } else { Write-Warning $m } }
+    try { 
+        [System.Windows.MessageBox]::Show($msg, $title, [System.Windows.MessageBoxButton]::OK, $icon) | Out-Null 
+    } catch { 
+        Write-Warning "$title : $msg"
     }
 }
 function Msg-Warn([string]$msg,[string]$title='Warning') { Msg-Show $msg $title ([System.Windows.MessageBoxImage]::Warning) }
@@ -207,44 +175,6 @@ function Reg-CopyValues([string]$srcPath, [string]$dstPath) {
 function Tool-MarkKey([string]$psPath) { Reg-SetValue $psPath $managedValue $managedTag ([Microsoft.Win32.RegistryValueKind]::String) }
 function Tool-IsMarked([string]$psPath) { (Reg-GetValue $psPath $managedValue) -eq $managedTag }
 
-# Tab state
-function Tab-IsLoading([string]$key) { $script:UI.TabState[$key].Loading }
-function Tab-MarkDirty([string]$key) { $script:UI.TabState[$key].Dirty = $true }
-function Tab-SetLoadedClean([string]$key) { $script:UI.TabState[$key].Loaded = $true; $script:UI.TabState[$key].Dirty = $false }
-function Tab-SetLoading([string]$key, [bool]$v) { $script:UI.TabState[$key].Loading = $v }
-
-# Async loader
-function Start-TabLoad([string]$key, [scriptblock]$compute, [scriptblock]$apply) {
-    if (Tab-IsLoading $key) { return }
-    Tab-SetLoading $key $true
-    UI-SetStatus ("Loading {0}…" -f $key)
-
-    $bw = New-Object System.ComponentModel.BackgroundWorker
-    $bw.DoWork += { param($s,$e) $e.Result = & $compute }
-    $bw.RunWorkerCompleted += {
-        param($s,$e)
-        UI-Begin {
-            Tab-SetLoading $key $false
-            if ($e.Error) {
-                UI-SetStatus ("{0}: Error loading: {1}" -f $key, $e.Error.Message)
-                return
-            }
-            try {
-                & $apply $e.Result
-                Tab-SetLoadedClean $key
-            } catch {
-                UI-SetStatus ("{0}: Error applying data: {1}" -f $key, $_.Exception.Message)
-            }
-        }
-    }
-    $bw.RunWorkerAsync()
-}
-function Ensure-TabLoaded([string]$key, [scriptblock]$loader) {
-    $s = $script:UI.TabState[$key]
-    if ($s.Loading) { return }
-    if (-not $s.Loaded -or $s.Dirty) { & $loader }
-}
-
 # ShellNew
 function ShellNew-BackupPath([string]$extWithDot) {
     $e = $extWithDot.Trim()
@@ -337,10 +267,9 @@ function ShellNew-GetItems {
             }
         }
 
-        # light debug in status: counts help spot “empty because view” vs “actually none”
-        $debug = ("ShellNew found: HKLM={0}, HKCU={1}" -f $sysMap.Count, $usrMap.Count)
-        @($out) | ForEach-Object { $_ | Add-Member -NotePropertyName Debug -NotePropertyValue $debug -Force; $_ }
-    } finally {
+        return @($out)
+    } 
+    finally {
         if ($lm) { $lm.Close() }
         if ($cu) { $cu.Close() }
     }
@@ -352,7 +281,6 @@ function ShellNew-DisableForUser([string]$extWithDot) {
 
     $hkcuShellNew = "HKCU:\Software\Classes\$ext\ShellNew"
 
-    # Backup any existing HKCU ShellNew (user customization)
     if (Test-Path -LiteralPath $hkcuShellNew) {
         $backup = ShellNew-BackupPath $ext
         if (-not (Test-Path -LiteralPath $backup)) { [void](Reg-CopyValues $hkcuShellNew $backup) }
@@ -361,8 +289,7 @@ function ShellNew-DisableForUser([string]$extWithDot) {
     Reg-Ensure $hkcuShellNew
     Tool-MarkKey $hkcuShellNew
 
-    # Remove known template values so Explorer sees “nothing to create”
-    foreach ($n in @('NullFile','FileName','Data','Command','Handler')) { Reg-RemoveValue $hkcuShellNew $n }
+    foreach ($vn in @('NullFile','FileName','Data','Command','Handler')) { Reg-RemoveValue $hkcuShellNew $vn }
     Reg-SetValue $hkcuShellNew 'DisabledByTool' '1' ([Microsoft.Win32.RegistryValueKind]::String)
 }
 
@@ -387,7 +314,6 @@ function ShellNew-EnableForUser([string]$extWithDot) {
         $parent = Split-Path -Path $hkcuShellNew -Parent
         if (Reg-IsEmpty $parent) { Reg-RemoveTree $parent }
     } else {
-        # If user owns it, just remove our markers
         Reg-RemoveValue $hkcuShellNew 'DisabledByTool'
         Reg-RemoveValue $hkcuShellNew $managedValue
     }
@@ -396,7 +322,7 @@ function ShellNew-EnableForUser([string]$extWithDot) {
 # Send To
 function SendTo-GetItems {
     if (-not (Test-Path -LiteralPath $sendToDir)) { New-Item -ItemType Directory -Path $sendToDir -Force | Out-Null }
-    @(Get-ChildItem -LiteralPath $sendToDir -File -ErrorAction SilentlyContinue |
+    return @(Get-ChildItem -LiteralPath $sendToDir -File -ErrorAction SilentlyContinue |
         Sort-Object Name |
         ForEach-Object { [pscustomobject]@{ Name=$_.Name; Type=$_.Extension; Path=$_.FullName } })
 }
@@ -406,11 +332,11 @@ function FileType-ResolveProgId([string]$ext) {
     $e = $ext.Trim()
     if (-not $e.StartsWith('.')) { $e = ".${e}" }
 
-    $pid = Reg-GetDefault ("HKCU:\Software\Classes\{0}" -f $e)
-    if ($pid) { return [pscustomobject]@{ Extension=$e; ProgId=[string]$pid; Source='HKCU' } }
+    $progId = Reg-GetDefault ("HKCU:\Software\Classes\{0}" -f $e)
+    if ($progId) { return [pscustomobject]@{ Extension=$e; ProgId=[string]$progId; Source='HKCU' } }
 
-    $pid = Reg-GetDefault ("HKLM:\Software\Classes\{0}" -f $e)
-    if ($pid) { return [pscustomobject]@{ Extension=$e; ProgId=[string]$pid; Source='HKLM' } }
+    $progId = Reg-GetDefault ("HKLM:\Software\Classes\{0}" -f $e)
+    if ($progId) { return [pscustomobject]@{ Extension=$e; ProgId=[string]$progId; Source='HKLM' } }
 
     $null
 }
@@ -419,11 +345,24 @@ function Read-VerbEntry([string]$path, [string]$src) {
     $vk = Reg-Open $path $false
     if (-not $vk) { return $null }
     try {
-        $display = $vk.GetValue('MUIVerb',$null); if(-not $display){$display=$vk.GetValue('',$null)}; if(-not $display){$display=Split-Path -Path $path -Leaf}
-        $n = $vk.GetValueNames(); $disabled = ($n -contains 'LegacyDisable') -or ($n -contains 'ProgrammaticAccessOnly')
-        $cmd = $null; $ck = $vk.OpenSubKey('command')
+        $display = $vk.GetValue('MUIVerb',$null)
+        if(-not $display) { $display = $vk.GetValue('',$null) }
+        if(-not $display) { $display = Split-Path -Path $path -Leaf }
+        
+        $valueNames = $vk.GetValueNames()
+        $disabled = ($valueNames -contains 'LegacyDisable') -or ($valueNames -contains 'ProgrammaticAccessOnly')
+        
+        $cmd = $null
+        $ck = $vk.OpenSubKey('command')
         if ($ck) { try { $cmd = $ck.GetValue('',$null) } finally { $ck.Close() } }
-        [pscustomobject]@{ Key=(Split-Path -Path $path -Leaf); DisplayName=[string]$display; Command=if($cmd){[string]$cmd}else{$null}; Source=$src; DisabledRaw=$disabled }
+        
+        [pscustomobject]@{ 
+            Key=(Split-Path -Path $path -Leaf)
+            DisplayName=[string]$display
+            Command=if($cmd){[string]$cmd}else{$null}
+            Source=$src
+            DisabledRaw=$disabled 
+        }
     } finally { $vk.Close() }
 }
 
@@ -457,7 +396,7 @@ function Verb-GetEffective([string]$progId) {
             Command     = $eff.Command
         }
     }
-    @($out)
+    return @($out)
 }
 
 function Toggle-VerbDisable([string]$path) {
@@ -519,9 +458,8 @@ function Ctx-GetItems {
             }
         }
     }
-    @($rows)
+    return @($rows)
 }
-
 
 # Explorer restart
 function Explorer-Restart {
@@ -535,59 +473,55 @@ function Explorer-Restart {
     }
 }
 
-# UI wiring
-function Grid-WireDeleteKey([string]$gridName, [scriptblock]$action) {
-    $g = UI-Require $gridName
-    $g.Add_PreviewKeyDown({
-        param($sender, $e)
-        if ($e.Key -eq [System.Windows.Input.Key]::Delete) {
-            $action.InvokeReturnAsIs() | Out-Null
-            $e.Handled = $true
-        }
-    })
-}
-function Tabs-SelectedHeader() {
-    $tabs = $script:UI.Elements['MainTabs']
-    if (-not $tabs) { return $null }
-    $tab = $tabs.SelectedItem
-    if (-not $tab) { return $null }
-    [string]$tab.Header
-}
-
 # Loaders
 function Load-NewTab {
-    Start-TabLoad 'New' { @(ShellNew-GetItems) } {
-        param($data)
-        UI-SetGrid 'NewGrid' $data
-        $dbg = if ($data.Count -gt 0) { $data[0].Debug } else { "ShellNew found: HKLM=0, HKCU=0" }
-        UI-SetStatus ("New Menu: {0} entries   ({1})" -f $data.Count, $dbg)
+    $script:UI.Elements['StatusText'].Text = "Loading New Menu..."
+    try {
+        $data = ShellNew-GetItems
+        $script:UI.Elements['NewGrid'].ItemsSource = $data
+        $script:UI.Elements['StatusText'].Text = "New Menu: $($data.Count) entries"
+    } catch {
+        $script:UI.Elements['StatusText'].Text = "Error: $($_.Exception.Message)"
     }
 }
+
 function Load-SendToTab {
-    Start-TabLoad 'SendTo' { @(SendTo-GetItems) } {
-        param($data)
-        UI-SetGrid 'SendToGrid' $data
-        UI-SetStatus ("Send To: {0} entries" -f $data.Count)
+    $script:UI.Elements['StatusText'].Text = "Loading Send To..."
+    try {
+        $data = SendTo-GetItems
+        $script:UI.Elements['SendToGrid'].ItemsSource = $data
+        $script:UI.Elements['StatusText'].Text = "Send To: $($data.Count) entries"
+    } catch {
+        $script:UI.Elements['StatusText'].Text = "Error: $($_.Exception.Message)"
     }
 }
+
 function Load-VerbsTab {
-    $pid = if ($script:UI.ResolvedProg) { [string]$script:UI.ResolvedProg.ProgId } else { $null }
-    if (-not $pid) {
-        UI-SetGrid 'VerbGrid' @()
-        UI-SetStatus "File Type Verbs: resolve an extension"
+    $progId = if ($script:UI.ResolvedProg) { [string]$script:UI.ResolvedProg.ProgId } else { $null }
+    if (-not $progId) {
+        $script:UI.Elements['VerbGrid'].ItemsSource = @()
+        $script:UI.Elements['StatusText'].Text = "File Type Verbs: resolve an extension"
         return
     }
-    Start-TabLoad 'Verbs' { @(Verb-GetEffective $pid) } {
-        param($data)
-        UI-SetGrid 'VerbGrid' $data
-        UI-SetStatus ("File Type Verbs: {0} entries for {1}" -f $data.Count, $script:UI.ResolvedProg.Extension)
+    
+    $script:UI.Elements['StatusText'].Text = "Loading File Type Verbs..."
+    try {
+        $data = Verb-GetEffective $progId
+        $script:UI.Elements['VerbGrid'].ItemsSource = $data
+        $script:UI.Elements['StatusText'].Text = "File Type Verbs: $($data.Count) entries for $($script:UI.ResolvedProg.Extension)"
+    } catch {
+        $script:UI.Elements['StatusText'].Text = "Error: $($_.Exception.Message)"
     }
 }
+
 function Load-ContextTab {
-    Start-TabLoad 'Context' { @(Ctx-GetItems) } {
-        param($data)
-        UI-SetGrid 'ContextGrid' $data
-        UI-SetStatus ("Context Verbs: {0} entries" -f $data.Count)
+    $script:UI.Elements['StatusText'].Text = "Loading Context Verbs..."
+    try {
+        $data = Ctx-GetItems
+        $script:UI.Elements['ContextGrid'].ItemsSource = $data
+        $script:UI.Elements['StatusText'].Text = "Context Verbs: $($data.Count) entries"
+    } catch {
+        $script:UI.Elements['StatusText'].Text = "Error: $($_.Exception.Message)"
     }
 }
 
@@ -595,7 +529,7 @@ function Load-ContextTab {
 $XAML = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Shell Menu Manager (View + Toggle)"
+        Title="Shell Menu Manager"
         Height="740" Width="1020"
         MinHeight="560" MinWidth="860"
         WindowStartupLocation="CenterScreen">
@@ -619,12 +553,7 @@ $XAML = @"
                     CanUserAddRows="False"
                     IsReadOnly="True"
                     SelectionMode="Single"
-                    Margin="0,0,0,8"
-                    EnableRowVirtualization="True"
-                    EnableColumnVirtualization="True"
-                    VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Recycling"
-                    ScrollViewer.CanContentScroll="True">
+                    Margin="0,0,0,8">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Ext" Binding="{Binding Extension}" Width="90" />
               <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="*" />
@@ -653,12 +582,7 @@ $XAML = @"
                     CanUserAddRows="False"
                     IsReadOnly="True"
                     SelectionMode="Single"
-                    Margin="0,0,0,8"
-                    EnableRowVirtualization="True"
-                    EnableColumnVirtualization="True"
-                    VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Recycling"
-                    ScrollViewer.CanContentScroll="True">
+                    Margin="0,0,0,8">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
               <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="110" />
@@ -700,12 +624,7 @@ $XAML = @"
                     CanUserAddRows="False"
                     IsReadOnly="True"
                     SelectionMode="Single"
-                    Margin="0,0,0,8"
-                    EnableRowVirtualization="True"
-                    EnableColumnVirtualization="True"
-                    VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Recycling"
-                    ScrollViewer.CanContentScroll="True">
+                    Margin="0,0,0,8">
             <DataGrid.Columns>
               <DataGridTextColumn Header="VerbKey" Binding="{Binding VerbKey}" Width="160" />
               <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="280" />
@@ -733,12 +652,7 @@ $XAML = @"
                     CanUserAddRows="False"
                     IsReadOnly="True"
                     SelectionMode="Single"
-                    Margin="0,0,0,8"
-                    EnableRowVirtualization="True"
-                    EnableColumnVirtualization="True"
-                    VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Recycling"
-                    ScrollViewer.CanContentScroll="True">
+                    Margin="0,0,0,8">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="190" />
               <DataGridTextColumn Header="KeyName" Binding="{Binding KeyName}" Width="220" />
@@ -803,38 +717,6 @@ if (-not $script:UI.App) {
     }
 }
 
-# Attach exception handler only if App supports it (shutdown App lacks DispatcherUnhandledException)
-try {
-    $script:UI.App.DispatcherUnhandledException += {
-    param($sender, $e)
-    $ex = $e.Exception
-
-    if ($ex -is [System.ComponentModel.Win32Exception] -and $ex.NativeErrorCode -eq 1816) {
-        try {
-            [System.Windows.MessageBox]::Show(
-                "WPF hit a system resource quota (Win32 1816). Close some heavy UI apps / many windows, then re-run.",
-                "Resource Quota",
-                [System.Windows.MessageBoxButton]::OK,
-                [System.Windows.MessageBoxImage]::Error) | Out-Null
-        } catch {}
-        try { $script:UI.Window.Close() } catch {}
-        $e.Handled = $true
-        return
-    }
-
-    try {
-        [System.Windows.MessageBox]::Show(
-            ("Unhandled UI exception: {0}" -f $ex.Message),
-            "Unhandled Exception",
-            [System.Windows.MessageBoxButton]::OK,
-            [System.Windows.MessageBoxImage]::Error) | Out-Null
-    } catch {}
-    $e.Handled = $true
-}
-} catch {
-    # Shutdown or non-standard App may not support DispatcherUnhandledException; continue without handler
-}
-
 # Build window
 try {
     $reader = New-Object System.Xml.XmlNodeReader ([xml]$XAML)
@@ -843,8 +725,6 @@ try {
     Write-Error ("Failed to load XAML: {0}" -f $_.Exception.Message)
     exit 1
 }
-
-$script:UI.Dispatcher = $script:UI.Window.Dispatcher
 
 # Named controls
 ([regex]::Matches($XAML, 'x:Name="([^"]+)"') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique) | ForEach-Object {
@@ -866,7 +746,6 @@ function Do-NewToggle {
             ShellNew-DisableForUser $row.Extension
         }
 
-        Tab-MarkDirty 'New'
         Load-NewTab
     } catch { Msg-Error $_.Exception.Message }
 }
@@ -878,7 +757,6 @@ function Do-SendToDelete {
 
     try {
         Remove-Item -LiteralPath $row.Path -Force -ErrorAction Stop | Out-Null
-        Tab-MarkDirty 'SendTo'
         Load-SendToTab
     } catch { Msg-Error $_.Exception.Message }
 }
@@ -888,13 +766,12 @@ function Do-VerbResolve {
         $script:UI.ResolvedProg = FileType-ResolveProgId $script:UI.Elements['VerbExtBox'].Text
         if (-not $script:UI.ResolvedProg) {
             $script:UI.Elements['VerbProgIdLabel'].Text = "No ProgId found"
-            UI-SetGrid 'VerbGrid' @()
-            UI-SetStatus "File Type Verbs: could not resolve ProgId"
+            $script:UI.Elements['VerbGrid'].ItemsSource = @()
+            $script:UI.Elements['StatusText'].Text = "File Type Verbs: could not resolve ProgId"
             return
         }
 
         $script:UI.Elements['VerbProgIdLabel'].Text = ("ProgId: {0} (from {1})" -f $script:UI.ResolvedProg.ProgId, $script:UI.ResolvedProg.Source)
-        Tab-MarkDirty 'Verbs'
         Load-VerbsTab
     } catch { Msg-Error $_.Exception.Message }
 }
@@ -908,9 +785,8 @@ function Do-VerbToggle {
 
     try {
         $result = Toggle-VerbDisable "HKCU:\Software\Classes\$($script:UI.ResolvedProg.ProgId)\shell\$($row.VerbKey)"
-        Tab-MarkDirty 'Verbs'
         Load-VerbsTab
-        UI-SetStatus ("{0}: {1}" -f $row.VerbKey, $result)
+        $script:UI.Elements['StatusText'].Text = "$($row.VerbKey): $result"
     } catch { Msg-Error $_.Exception.Message }
 }
 
@@ -922,56 +798,81 @@ function Do-ContextToggle {
 
     try {
         $result = Toggle-VerbDisable $row.HKCUPath
-        Tab-MarkDirty 'Context'
         Load-ContextTab
-        UI-SetStatus ("{0} / {1}: {2}" -f $row.Location, $row.KeyName, $result)
+        $script:UI.Elements['StatusText'].Text = "$($row.Location) / $($row.KeyName): $result"
     } catch { Msg-Error $_.Exception.Message }
 }
 
 # Hook buttons
-(UI-Require 'CloseBtn').Add_Click({ $script:UI.Window.Close() })
-(UI-Require 'RestartExplorerBtn').Add_Click({ Explorer-Restart })
-(UI-Require 'NewToggleBtn').Add_Click({ Do-NewToggle })
-(UI-Require 'SendToDeleteBtn').Add_Click({ Do-SendToDelete })
-(UI-Require 'SendToOpenFolderBtn').Add_Click({
+$script:UI.Elements['CloseBtn'].Add_Click({ $script:UI.Window.Close() })
+$script:UI.Elements['RestartExplorerBtn'].Add_Click({ Explorer-Restart })
+$script:UI.Elements['NewToggleBtn'].Add_Click({ Do-NewToggle })
+$script:UI.Elements['SendToDeleteBtn'].Add_Click({ Do-SendToDelete })
+$script:UI.Elements['SendToOpenFolderBtn'].Add_Click({
     try {
         if (-not (Test-Path -LiteralPath $sendToDir)) { New-Item -ItemType Directory -Path $sendToDir -Force | Out-Null }
         Start-Process -FilePath explorer.exe -ArgumentList @($sendToDir) | Out-Null
     } catch { Msg-Error $_.Exception.Message }
 })
-(UI-Require 'VerbResolveBtn').Add_Click({ Do-VerbResolve })
-(UI-Require 'VerbToggleBtn').Add_Click({ Do-VerbToggle })
-(UI-Require 'ContextToggleBtn').Add_Click({ Do-ContextToggle })
+$script:UI.Elements['VerbResolveBtn'].Add_Click({ Do-VerbResolve })
+$script:UI.Elements['VerbToggleBtn'].Add_Click({ Do-VerbToggle })
+$script:UI.Elements['ContextToggleBtn'].Add_Click({ Do-ContextToggle })
 
 # Delete key support
-Grid-WireDeleteKey 'NewGrid' { Do-NewToggle }
-Grid-WireDeleteKey 'SendToGrid' { Do-SendToDelete }
-Grid-WireDeleteKey 'VerbGrid' { Do-VerbToggle }
-Grid-WireDeleteKey 'ContextGrid' { Do-ContextToggle }
+$script:UI.Elements['NewGrid'].Add_PreviewKeyDown({
+    param($sender, $e)
+    if ($e.Key -eq [System.Windows.Input.Key]::Delete) {
+        Do-NewToggle
+        $e.Handled = $true
+    }
+})
+$script:UI.Elements['SendToGrid'].Add_PreviewKeyDown({
+    param($sender, $e)
+    if ($e.Key -eq [System.Windows.Input.Key]::Delete) {
+        Do-SendToDelete
+        $e.Handled = $true
+    }
+})
+$script:UI.Elements['VerbGrid'].Add_PreviewKeyDown({
+    param($sender, $e)
+    if ($e.Key -eq [System.Windows.Input.Key]::Delete) {
+        Do-VerbToggle
+        $e.Handled = $true
+    }
+})
+$script:UI.Elements['ContextGrid'].Add_PreviewKeyDown({
+    param($sender, $e)
+    if ($e.Key -eq [System.Windows.Input.Key]::Delete) {
+        Do-ContextToggle
+        $e.Handled = $true
+    }
+})
 
 # Tab selection
-$tabs = UI-Require 'MainTabs'
-$tabs.Add_SelectionChanged({
+$script:UI.Elements['MainTabs'].Add_SelectionChanged({
     param($sender, $e)
     if ($e.OriginalSource -ne $sender) { return }
     try {
-        $header = Tabs-SelectedHeader
-        if (-not $header) { return }
+        $tab = $script:UI.Elements['MainTabs'].SelectedItem
+        if (-not $tab) { return }
+        $header = [string]$tab.Header
+        
         switch -Wildcard ($header) {
-            'New Menu*'        { Ensure-TabLoaded 'New'     { Load-NewTab } }
-            'Send To*'         { Ensure-TabLoaded 'SendTo'  { Load-SendToTab } }
-            'File Type Verbs*' { Ensure-TabLoaded 'Verbs'   { Load-VerbsTab } }
-            'Context Verbs*'   { Ensure-TabLoaded 'Context' { Load-ContextTab } }
+            'New Menu*'        { Load-NewTab }
+            'Send To*'         { Load-SendToTab }
+            'File Type Verbs*' { Load-VerbsTab }
+            'Context Verbs*'   { Load-ContextTab }
         }
     } catch {
-        UI-SetStatus ("Tab error: {0}" -f $_.Exception.Message)
+        $script:UI.Elements['StatusText'].Text = "Tab error: $($_.Exception.Message)"
     }
 })
 
 # Initial load
 $script:UI.Window.Add_ContentRendered({
     $script:UI.Elements['VerbProgIdLabel'].Text = "Resolve an extension to view/toggle file-type verbs."
-    Ensure-TabLoaded 'New' { Load-NewTab }
+    $script:UI.Elements['StatusText'].Text = "Ready"
+    Load-NewTab
 })
 
 # Run
