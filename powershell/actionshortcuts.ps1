@@ -20,31 +20,9 @@ if (-not $env:SHELLMENUMGR_UI_CHILD) {
     return
 }
 
-
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName WindowsBase
-
-# Relaunch (STA, 64-bit, or fresh WPF)
-function Relaunch-Self([string]$exePath, [string[]]$extraArgs, [string]$envVar) {
-    if ($envVar) { Set-Item "env:$envVar" '1' }
-    Start-Process -FilePath $exePath -ArgumentList (@('-NoProfile','-ExecutionPolicy','Bypass','-File',$PSCommandPath)+$extraArgs) | Out-Null
-    exit 0
-}
-try {
-    if (-not $env:SHELLMENUMGR_STA -and [Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') {
-        $env:SHELLMENUMGR_STA = '1'
-        $sta = if ($PSVersionTable.PSEdition -eq 'Core') { '-Sta' } else { '-STA' }
-        Relaunch-Self (Get-Process -Id $PID).Path (@($sta)+$MyInvocation.UnboundArguments)
-    }
-} catch {}
-try {
-    if ([Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProcess -and -not $env:SHELLMENUMGR_64) {
-        $env:SHELLMENUMGR_64 = '1'
-        $ps = Join-Path $env:WINDIR 'sysnative\WindowsPowerShell\v1.0\powershell.exe'
-        if (Test-Path -LiteralPath $ps) { Relaunch-Self $ps $MyInvocation.UnboundArguments }
-    }
-} catch {}
 
 # Quota mitigation
 try { [System.Windows.Media.RenderOptions]::ProcessRenderMode = [System.Windows.Interop.RenderMode]::SoftwareOnly } catch {}
@@ -687,31 +665,15 @@ $XAML = @"
 </Window>
 "@
 
-# Ensure clean WPF session
-if (-not $env:SHELLMENUMGR_WPF_FRESH) {
-    try {
-        $ea = [System.Windows.Application]::Current
-        if ($ea) {
-            $d = $ea.Dispatcher
-            if ($d -and ($d.HasShutdownStarted -or $d.HasShutdownFinished)) {
-                Relaunch-Self (Get-Process -Id $PID).Path $MyInvocation.UnboundArguments 'SHELLMENUMGR_WPF_FRESH'
-            }
-        }
-    } catch { Relaunch-Self (Get-Process -Id $PID).Path $MyInvocation.UnboundArguments 'SHELLMENUMGR_WPF_FRESH' }
-}
-
 # App + exception handler
 $script:UI.App = [System.Windows.Application]::Current
 if (-not $script:UI.App) {
     try {
         $script:UI.App = New-Object System.Windows.Application
     } catch {
-        if ($_.Exception.Message -match 'Cannot create more than one' -and -not $env:SHELLMENUMGR_WPF_FRESH) {
-            Relaunch-Self (Get-Process -Id $PID).Path $MyInvocation.UnboundArguments 'SHELLMENUMGR_WPF_FRESH'
-        }
         $script:UI.App = [System.Windows.Application]::Current
         if (-not $script:UI.App) {
-            Write-Error "Cannot create WPF Application. Start a new PowerShell session and run this script again."
+            Write-Error "Cannot create WPF Application."
             exit 1
         }
     }
@@ -877,7 +839,7 @@ $script:UI.Window.Add_ContentRendered({
 
 # Run
 if (-not $script:UI.App) {
-    Write-Error "WPF Application is not initialized. Start a new PowerShell session and run again."
+    Write-Error "WPF Application is not initialized."
     exit 1
 }
 $null = $script:UI.App.Run($script:UI.Window)
