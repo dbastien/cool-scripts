@@ -1,1 +1,0 @@
-function curl { param([string]$Url) Invoke-WebRequest $Url }
