@@ -1,0 +1,1 @@
+function top { while ($true) { Clear-Host; ps; Start-Sleep 1 } }
