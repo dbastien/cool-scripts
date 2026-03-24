@@ -1,4 +1,3 @@
-# PS7+ friendly: keep current terminal alive, run UI in a fresh STA pwsh
 function Start-WpfChildProcess {
     param([string[]]$ArgsFromCaller)
 
@@ -10,15 +9,17 @@ function Start-WpfChildProcess {
         '-File', $PSCommandPath
     ) + $ArgsFromCaller
 
-    Start-Process -FilePath $pwsh -ArgumentList $argList | Out-Null
+    Start-Process -FilePath $pwsh -ArgumentList $argList -Environment @{
+        SHELLMENUMGR_UI_CHILD = '1'
+    } | Out-Null
 }
 
-# If we're not already the UI child, spawn it and stop THIS invocation (without killing the terminal)
+# Parent terminal: always spawn UI child, then stop this invocation
 if (-not $env:SHELLMENUMGR_UI_CHILD) {
-    $env:SHELLMENUMGR_UI_CHILD = '1'
     Start-WpfChildProcess -ArgsFromCaller $MyInvocation.UnboundArguments
     return
 }
+
 
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore
