@@ -1,6 +1,7 @@
 # cool-scripts
 
-This repository contains assorted scripts, including a bootstrap specifically for Ubuntu running inside WSL.
+This repository contains assorted scripts - for powershell and zshell both.
+Including a bootstrap specifically for Ubuntu running inside WSL.
 
 ## Ubuntu-on-WSL Zsh bootstrap
 
