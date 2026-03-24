@@ -9,9 +9,19 @@ function Start-WpfChildProcess {
         '-File', $PSCommandPath
     ) + $ArgsFromCaller
 
-    Start-Process -FilePath $pwsh -ArgumentList $argList -Environment @{
-        SHELLMENUMGR_UI_CHILD = '1'
-    } | Out-Null
+    # Do not use Start-Process -Environment with a partial map: it replaces the entire
+    # block for the child, dropping PATH and other inherited variables. Temporarily set
+    # the flag on this process so the child inherits the full environment plus the flag.
+    $hadChildFlag = Test-Path env:SHELLMENUMGR_UI_CHILD
+    $prevChildFlag = $env:SHELLMENUMGR_UI_CHILD
+    $env:SHELLMENUMGR_UI_CHILD = '1'
+    try {
+        Start-Process -FilePath $pwsh -ArgumentList $argList | Out-Null
+    }
+    finally {
+        if ($hadChildFlag) { $env:SHELLMENUMGR_UI_CHILD = $prevChildFlag }
+        else { Remove-Item env:SHELLMENUMGR_UI_CHILD -ErrorAction SilentlyContinue }
+    }
 }
 
 # Parent terminal: always spawn UI child, then stop this invocation
