@@ -1,13 +1,16 @@
 # cool-scripts
 
-This repository contains assorted scripts, including a bootstrap specifically for Ubuntu running inside WSL.
+This repository contains assorted scripts - for powershell and zshell both.
+Including a bootstrap specifically for Ubuntu running inside WSL.
 
-## Ubuntu-on-WSL shell bootstrap
+## Ubuntu-on-WSL Zsh bootstrap
 
-Run `longer/wsl-shell-setup.sh` on a fresh Ubuntu instance inside WSL to:
-- choose one shell from bash, zsh, fish, xonsh, or nushell,
-- install a curated CLI toolkit,
-- configure colorful aliases and a simple pill-style prompt, with a shell-native breadcrumb jump picker in Zsh and clickable breadcrumb links as a fallback in compatible terminals,
+Run `linux/wsl-shell-setup.sh` on a fresh Ubuntu instance inside WSL to:
+- install and configure Zsh only,
+- add stronger completion, autosuggestions, syntax highlighting, and history search,
+- install `thefuck`, `zoxide`, `fzf`, `bat`, `eza`, and other modern CLI tools,
+- configure a pill-style breadcrumb prompt plus a shell-native breadcrumb jump picker,
+- use RAM-backed completion caches and zcompiled completion metadata where available,
 - and show a random startup quote from a bundled or custom quotes file.
 
 This script is for the Linux side of WSL, not for PowerShell.
