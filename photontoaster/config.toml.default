@@ -1,0 +1,57 @@
+# PhotonToaster configuration
+# Edit this file to customize your shell experience.
+# Changes take effect on next shell startup (or run: reload)
+
+[general]
+quote_of_the_day = true
+typo_aliases = true
+# When true (Debian/Ubuntu), source command-not-found hints for unknown commands.
+command_not_found_hints = false
+
+# Directory listing tool: "eza" | "lsd" | "broot" | "ls"
+ls_tool = "eza"
+# Replace cd with zoxide's z (frecency-based directory jumping)
+cd_to_z = true
+
+[aws]
+auto_login = true
+auto_login_interval_hours = 8
+
+[prompt]
+# Theme: "pills" | "pills-merged" | "plain" | "minimal"
+style = "pills-merged"
+show_rprompt = true
+show_window_title = false
+
+# Segment layout: comma-separated. Remove any you don't want.
+# Available: user, path, git, venv, jobs, ssh, status, duration, time
+# Example: right = "time" (time only, no check/x or duration)
+left = "ssh,user,path,git,venv,jobs"
+right = "status,duration,time"
+
+# Icon toggles
+icon_user = true
+icon_path = true
+# When true, icons use a bright color distinct from segment text
+colored_icons = false
+
+# Command duration: only show if command took longer than this (seconds)
+duration_threshold = 3
+
+[colors]
+# Preset: "default" | "astra" | "catppuccin" | "cracktro" | "dracula" | "pastels" | "solarized" | "terminal"
+scheme = "default"
+# Override individual colors (R;G;B format). Uncomment to customize:
+# blue = "110;155;245"
+# violet = "150;125;255"
+# ok = "80;250;120"
+# err = "255;90;90"
+# warn = "255;220;60"
+# white = "245;245;255"
+# dark = "24;28;40"
+# accent = "255;100;255"
+# ssh = "255;165;0"
+# venv = "60;180;75"
+
+[debug]
+profile_startup = false

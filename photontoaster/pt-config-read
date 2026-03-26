@@ -1,0 +1,28 @@
+#!/bin/sh
+# Shell-agnostic config.toml reader — outputs KEY=VALUE lines (one per setting)
+# Used by zsh init to load PhotonToaster preferences without duplicating
+# the TOML parser in each shell's native syntax.
+#
+# Usage: pt-config-read [config_file]
+# Defaults to $PHOTONTOASTER_CONFIG_DIR/config.toml
+
+config="${1:-${PHOTONTOASTER_CONFIG_DIR:-$HOME/.config/photontoaster}/config.toml}"
+[ -r "$config" ] || exit 0
+
+awk '
+  /^[[:space:]]*[#]/  { next }
+  /^[[:space:]]*$/     { next }
+  /^\[/ {
+    gsub(/[\[\][:space:]]/, "")
+    section = $0
+    next
+  }
+  /=/ {
+    key = $0; sub(/[[:space:]]*=.*/, "", key); gsub(/^[[:space:]]+/, "", key)
+    val = $0; sub(/[^=]*=[[:space:]]*/, "", val)
+    gsub(/^"/, "", val); gsub(/"$/, "", val)
+    gsub(/[[:space:]]*#.*$/, "", val)
+    if (section != "") key = section "." key
+    printf "%s=%s\n", key, val
+  }
+' "$config"

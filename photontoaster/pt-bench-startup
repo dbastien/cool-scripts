@@ -1,0 +1,29 @@
+#!/bin/sh
+# Benchmark interactive zsh startup time.
+# Requires: hyperfine
+#
+# Usage: pt-bench-startup [--json output.json]
+#
+# Perf gate (informational): zsh < 200ms
+
+set -e
+
+if ! command -v hyperfine >/dev/null 2>&1; then
+  echo "Error: hyperfine is required. Install it or use 'brew install hyperfine'." >&2
+  exit 1
+fi
+
+json_flag=""
+if [ "$1" = "--json" ] && [ -n "$2" ]; then
+  json_flag="--export-json $2"
+  shift 2
+fi
+
+if ! command -v zsh >/dev/null 2>&1; then
+  echo "zsh not found." >&2
+  exit 1
+fi
+
+echo "Benchmarking interactive zsh startup..."
+echo ""
+eval hyperfine --warmup 3 --min-runs 10 -n zsh "'zsh -i -c exit'" $json_flag

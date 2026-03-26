@@ -1,16 +1,17 @@
 # cool-scripts
 
-This repository contains assorted scripts - for powershell and zshell both.
-Including a bootstrap specifically for Ubuntu running inside WSL.
+This repository contains assorted scripts for PowerShell and Zsh.
 
-## Ubuntu-on-WSL Zsh bootstrap
+## Photon Toaster (Zsh)
 
-Run `linux/wsl-shell-setup.sh` on a fresh Ubuntu instance inside WSL to:
-- install and configure Zsh only,
-- add stronger completion, autosuggestions, syntax highlighting, and history search,
-- install `thefuck`, `zoxide`, `fzf`, `bat`, `eza`, and other modern CLI tools,
-- configure a pill-style breadcrumb prompt plus a shell-native breadcrumb jump picker,
-- use RAM-backed completion caches and zcompiled completion metadata where available,
-- and show a random startup quote from a bundled or custom quotes file.
+Shell theme, prompts, aliases, and integrations live under [`photontoaster/`](photontoaster/).
 
-This script is for the Linux side of WSL, not for PowerShell.
+On **Ubuntu inside WSL**, run once (as your normal user):
+
+```bash
+bash photontoaster/install-wsl-ubuntu-deps.sh
+```
+
+That installs apt packages (zsh, plugins, CLI tools), symlinks `~/.config/photontoaster` to this repo’s `photontoaster/` folder, seeds `config.toml` and `quotes.txt` if missing, and sets your login shell to zsh. Then wire `~/.zshrc` to source the files listed in the installer header (see top of `install-wsl-ubuntu-deps.sh`).
+
+Photon Toaster does not duplicate a second prompt/alias stack: configure behavior in `photontoaster/config.toml` (copy from `config.toml.default` if needed).
