@@ -1,0 +1,161 @@
+07/14/2024 17:40:08 - PowerShell 7 or later is required. Current version is 5.1.22621.3880
+07/14/2024 17:40:08 - Downloading PowerShell 7.4.3...
+07/14/2024 17:41:20 - Installing PowerShell 7.4.3...
+07/14/2024 17:41:22 - PowerShell 7.4.3 installed successfully.
+07/14/2024 17:41:22 - Launching main script with PowerShell 7...
+07/14/2024 17:42:00 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:42:00 - PowerShell 7.4.3 installer already exists. Skipping download.
+07/14/2024 17:42:00 - Installing PowerShell 7.4.3...
+07/14/2024 17:42:02 - PowerShell 7.4.3 installed successfully.
+07/14/2024 17:42:02 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:42:44 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:42:44 - PowerShell 7.4.3 installer already exists. Skipping download.
+07/14/2024 17:42:44 - Installing PowerShell 7.4.3...
+07/14/2024 17:42:46 - PowerShell 7.4.3 installed successfully.
+07/14/2024 17:42:46 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:42:46 - Unable to find PowerShell 7+ executable. Installation may have failed.
+07/14/2024 17:43:25 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:43:25 - PowerShell 7.4.3 installer already exists. Skipping download.
+07/14/2024 17:43:25 - Installing PowerShell 7.4.3...
+07/14/2024 17:43:27 - PowerShell 7 installation failed with exit code: 1603
+07/14/2024 17:44:12 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:44:12 - PowerShell 7.4.3 installer already exists. Skipping download.
+07/14/2024 17:44:12 - Installing PowerShell 7.4.3...
+07/14/2024 17:44:14 - PowerShell 7 installation failed with exit code: 1603
+07/14/2024 17:44:14 - Please check the installation log at: C:\Users\dwbas\AppData\Local\Temp\PS7_Install_Log.txt
+07/14/2024 17:44:14 - You may need to install PowerShell 7 manually. The installer is located at: C:\Users\dwbas\AppData\Local\Temp\PowerShell-7-7.4.3.msi
+07/14/2024 17:44:14 - After manual installation, please restart this script.
+07/14/2024 17:47:50 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:47:51 - PowerShell 7.4.3 installer already exists. Skipping download.
+07/14/2024 17:47:51 - Installing PowerShell 7.4.3...
+07/14/2024 17:47:59 - PowerShell 7.4.3 installed successfully.
+07/14/2024 17:47:59 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:47:59 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 17:49:21 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:49:21 - PowerShell 7+ is already installed.
+07/14/2024 17:49:21 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:49:21 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 17:53:28 - Current directory: C:\Scripts
+07/14/2024 17:53:28 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:53:28 - PowerShell 7+ is already installed.
+07/14/2024 17:53:28 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:53:28 - Error: Cannot find install.ps1 at C:\Scripts\install.ps1
+07/14/2024 17:54:41 - Current directory: C:\Scripts
+07/14/2024 17:54:41 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:54:41 - PowerShell 7+ is already installed.
+07/14/2024 17:54:41 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:54:41 - Error: Cannot find install.ps1 at C:\Scripts\install.ps1
+07/14/2024 17:55:03 - Current directory: C:\Scripts
+07/14/2024 17:55:03 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:55:03 - PowerShell 7+ is already installed.
+07/14/2024 17:55:03 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:55:03 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 17:55:03 - Full script path: C:\Scripts\install.ps1
+07/14/2024 17:55:03 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 17:57:30 - Current directory: C:\Scripts
+07/14/2024 17:57:30 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:57:30 - PowerShell 7+ is already installed.
+07/14/2024 17:57:30 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:57:30 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 17:57:30 - Full script path: C:\Scripts\install.ps1
+07/14/2024 17:57:30 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 17:59:53 - Current directory: C:\Scripts
+07/14/2024 17:59:53 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 17:59:53 - PowerShell 7+ is already installed.
+07/14/2024 17:59:53 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 17:59:53 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 17:59:53 - Full script path: C:\Scripts\install.ps1
+07/14/2024 17:59:53 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:03:10 - Current directory: C:\Scripts
+07/14/2024 18:03:10 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:03:10 - PowerShell 7+ is already installed.
+07/14/2024 18:03:10 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:03:10 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:03:10 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:03:10 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:03:10 - Error: install.ps1 exited with code 1
+07/14/2024 18:04:34 - Current directory: C:\Scripts
+07/14/2024 18:04:34 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:04:34 - PowerShell 7+ is already installed.
+07/14/2024 18:04:34 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:04:34 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:04:34 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:04:34 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:06:05 - Current directory: C:\Scripts
+07/14/2024 18:06:05 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:06:05 - PowerShell 7+ is already installed.
+07/14/2024 18:06:05 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:06:05 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:06:05 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:06:05 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:10:56 - Current directory: C:\Scripts
+07/14/2024 18:10:56 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:10:56 - PowerShell 7+ is already installed.
+07/14/2024 18:10:56 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:10:56 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:10:56 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:10:56 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:14:50 - Current directory: C:\Scripts
+07/14/2024 18:14:50 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:14:50 - PowerShell 7+ is already installed.
+07/14/2024 18:14:50 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:14:50 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:14:50 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:14:50 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:19:43 - Current directory: C:\Scripts
+07/14/2024 18:19:43 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:19:43 - PowerShell 7+ is already installed.
+07/14/2024 18:19:43 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:19:43 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:19:43 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:19:43 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:19:44 - Error: install.ps1 exited with code 1
+07/14/2024 18:22:41 - Current directory: C:\Scripts
+07/14/2024 18:22:41 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:22:41 - PowerShell 7+ is already installed.
+07/14/2024 18:22:41 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:22:41 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:22:41 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:22:41 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:25:44 - Current directory: C:\Scripts
+07/14/2024 18:25:44 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:25:44 - PowerShell 7+ is already installed.
+07/14/2024 18:25:44 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:25:44 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:25:44 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:25:44 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:28:35 - Current directory: C:\Scripts
+07/14/2024 18:28:35 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:28:35 - PowerShell 7+ is already installed.
+07/14/2024 18:28:35 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:28:35 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:28:35 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:28:35 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:31:19 - Current directory: C:\Scripts
+07/14/2024 18:31:19 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:31:19 - PowerShell 7+ is already installed.
+07/14/2024 18:31:19 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:31:19 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:31:19 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:31:19 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:33:53 - Current directory: C:\Scripts
+07/14/2024 18:33:53 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:33:53 - PowerShell 7+ is already installed.
+07/14/2024 18:33:53 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:33:53 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:33:53 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:33:53 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:36:10 - Current directory: C:\Scripts
+07/14/2024 18:36:10 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:36:10 - PowerShell 7+ is already installed.
+07/14/2024 18:36:10 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:36:10 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:36:10 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:36:10 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"
+07/14/2024 18:40:11 - Current directory: C:\Scripts
+07/14/2024 18:40:11 - PowerShell 7+ is required. Current version is 5.1.22621.3880
+07/14/2024 18:40:11 - PowerShell 7+ is already installed.
+07/14/2024 18:40:11 - Launching install.ps1 with PowerShell 7+...
+07/14/2024 18:40:11 - Launching install.ps1 with PowerShell 7+ found at: C:\Program Files\PowerShell\7\pwsh.exe
+07/14/2024 18:40:11 - Full script path: C:\Scripts\install.ps1
+07/14/2024 18:40:11 - Launch command: C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\install.ps1"

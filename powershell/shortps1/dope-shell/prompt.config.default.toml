@@ -1,0 +1,29 @@
+# Dope shell (PowerShell) prompt — copy to %USERPROFILE%\.config\dopeshell\config.toml
+# or rename to prompt.config.toml next to ShortPs1Prompt.ps1 in psbin.
+
+[prompt]
+# Theme: "pills" | "pills-merged" | "plain" | "minimal"
+style = "pills-merged"
+show_rprompt = true
+
+# Segments: user, path, git, venv, jobs, ssh, status, duration, time
+left = "ssh,user,path,git,venv,jobs"
+right = "status,duration,time"
+
+icon_user = true
+icon_path = true
+colored_icons = false
+duration_threshold = 3
+
+[colors]
+scheme = "default"
+# blue = "110;155;245"
+# violet = "150;125;255"
+# ok = "80;250;120"
+# err = "255;90;90"
+# warn = "255;220;60"
+# white = "245;245;255"
+# dark = "24;28;40"
+# accent = "255;100;255"
+# ssh = "255;165;0"
+# venv = "60;180;75"
