@@ -1,7 +1,7 @@
 #requires -Version 7.2
 <#
 .SYNOPSIS
-    Installs dev dependencies declared in SharedLibs\ShortPs1.Dev.psd1 (Pester 5.x for tests).
+    Installs dev dependencies declared in SharedLibs\Toasty.Dev.psd1 (Pester 5.x for tests).
 #>
 param(
     [switch]$WhatIf
@@ -9,7 +9,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot
-$dev = Import-PowerShellDataFile (Join-Path $here 'ShortPs1.Dev.psd1')
+$dev = Import-PowerShellDataFile (Join-Path $here 'Toasty.Dev.psd1')
 $minVer = [version]$dev.PesterMinimumVersion
 $maxVer = [version]$dev.PesterMaximumVersion
 

@@ -1,3 +1,3 @@
-# Forwards to toasty\Install-PsBin.ps1 (copy cli + shell helpers to psbin).
+# Forwards to toasty\install.ps1 (junction + PATH + config seed).
 $ErrorActionPreference = 'Stop'
-& (Join-Path $PSScriptRoot '..\toasty\Install-PsBin.ps1') @args
+& (Join-Path $PSScriptRoot '..\toasty\install.ps1') @args

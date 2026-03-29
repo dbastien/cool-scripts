@@ -1,5 +1,5 @@
 # Winget package IDs for common dev CLIs (curated manifest).
-# Dot-sourced by cli\Install-Extern.ps1 and Instellator\Install-Full.ps1 — not copied to psbin (see toasty\Install-PsBin.ps1 or shortps1\install.ps1).
+# Dot-sourced by cli\Install-Extern.ps1 and Instellator\Install-Full.ps1.
 #
 # Mapping notes (Ubuntu PT `packages=(...)` vs this manifest):
 # - ncdu (apt) -> gdu (dundee.gdu); same role: disk usage UI.
@@ -13,7 +13,7 @@
 #
 # Tiers: Core = smaller subset; Extended = rest. Default = Core + Extended (PT-style install-all); -MinimalExtern uses Core only.
 
-$ShortPs1WingetPackages = @(
+$ToastyWingetPackages = @(
   @{ Id = 'BurntSushi.ripgrep.MSVC'; Probe = 'rg'; ExcludeScript = $null; Tier = 'Core' }
   @{ Id = 'sharkdp.bat'; Probe = 'bat'; ExcludeScript = $null; Tier = 'Core' }
   @{ Id = 'sharkdp.fd'; Probe = 'fd'; ExcludeScript = $null; Tier = 'Core' }

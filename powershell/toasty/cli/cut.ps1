@@ -20,7 +20,7 @@ begin {
   $__sp = $PSScriptRoot
   if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
   $__root = Split-Path $__sp -Parent
-  $__common = Join-Path $__root 'lib\ShortCommon.ps1'
+  $__common = Join-Path $__root 'lib\common.ps1'
   if (Test-Path -LiteralPath $__common) { . $__common }
 
   if (-not $OutputDelimiter) { $OutputDelimiter = $Delimiter }
@@ -34,8 +34,8 @@ begin {
       } elseif ($part -match '^\s*(\d+)\s*$') {
         $set.Add([int]$Matches[1]) | Out-Null
       } else {
-        if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-          Write-ShortPs1Msg "cut: invalid field spec: $part" Err
+        if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+          Write-ToastyMsg "cut: invalid field spec: $part" Err
         }
         throw "cut: invalid field spec: $part"
       }
@@ -43,7 +43,7 @@ begin {
     return $set
   }
 
-  $script:ShortPs1CutWanted = Parse-Fields $Fields
+  $script:ToastyCutWanted = Parse-Fields $Fields
 }
 
 process {
@@ -54,7 +54,7 @@ process {
   }
   $parts = [regex]::Split($line, [regex]::Escape($Delimiter))
   $out = @()
-  foreach ($idx in $script:ShortPs1CutWanted) {
+  foreach ($idx in $script:ToastyCutWanted) {
     $i = $idx - 1
     if ($i -ge 0 -and $i -lt $parts.Length) { $out += $parts[$i] }
   }

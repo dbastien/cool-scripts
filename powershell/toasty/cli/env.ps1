@@ -8,7 +8,7 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 $items = Get-ChildItem Env:
@@ -20,8 +20,8 @@ if ($Pattern) {
   }
 }
 
-Initialize-ShortPs1Host
-$useColor = $script:ShortPs1UseColor
+Initialize-ToastyHost
+$useColor = $script:ToastyUseColor
 
 $items | Sort-Object Name | ForEach-Object {
   if ($NameOnly) {

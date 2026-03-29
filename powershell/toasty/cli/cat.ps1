@@ -15,7 +15,7 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 begin {
@@ -47,8 +47,8 @@ end {
   if ($Path -and $Path.Count -gt 0) {
     foreach ($p in $Path) {
       if (-not (Test-Path -LiteralPath $p)) {
-        if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-          Write-ShortPs1Msg "cat: not found: $p" Err
+        if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+          Write-ToastyMsg "cat: not found: $p" Err
         } else {
           Write-Error "cat: not found: $p"
         }

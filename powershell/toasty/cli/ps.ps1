@@ -6,11 +6,11 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
-if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-  Write-ShortPs1Msg "Processes (CPU is cumulative seconds since start)" Muted
+if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+  Write-ToastyMsg "Processes (CPU is cumulative seconds since start)" Muted
 }
 
 $procs = Get-Process | Sort-Object -Property CPU -Descending

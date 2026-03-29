@@ -6,7 +6,7 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 $targets = [System.Collections.Generic.List[string]]::new()
@@ -22,8 +22,8 @@ foreach ($p in $targets) {
   try {
     (Resolve-Path -LiteralPath $p -ErrorAction Stop).Path
   } catch {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg "realpath: $p : $($_)" Err
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg "realpath: $p : $($_)" Err
     }
     exit 1
   }

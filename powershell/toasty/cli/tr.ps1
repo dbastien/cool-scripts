@@ -20,7 +20,7 @@ begin {
   $__sp = $PSScriptRoot
   if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
   $__root = Split-Path $__sp -Parent
-  $__common = Join-Path $__root 'lib\ShortCommon.ps1'
+  $__common = Join-Path $__root 'lib\common.ps1'
   if (Test-Path -LiteralPath $__common) { . $__common }
 
   function Build-Map([string]$a, [string]$b) {
@@ -35,15 +35,15 @@ begin {
     return $map
   }
 
-  $script:ShortPs1TrMap = $null
+  $script:ToastyTrMap = $null
   if (-not $Delete -and $Set1.Length -gt 0) {
     if ($Set2.Length -eq 0) {
-      if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-        Write-ShortPs1Msg "tr: missing SET2" Err
+      if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+        Write-ToastyMsg "tr: missing SET2" Err
       }
       throw "tr: missing SET2"
     }
-    $script:ShortPs1TrMap = Build-Map $Set1 $Set2
+    $script:ToastyTrMap = Build-Map $Set1 $Set2
   }
 }
 
@@ -53,7 +53,7 @@ process {
   $sb = New-Object System.Text.StringBuilder
   $last = [char]0
   $hasLast = $false
-  $map = $script:ShortPs1TrMap
+  $map = $script:ToastyTrMap
 
   foreach ($ch in $text.ToCharArray()) {
     if ($Delete -and $Set1.Contains($ch)) { continue }

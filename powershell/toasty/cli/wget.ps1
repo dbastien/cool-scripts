@@ -37,7 +37,7 @@ param (
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 if ($PSCmdlet.ParameterSetName -eq 'Help') {
@@ -71,16 +71,16 @@ try {
 
   $urlDisp = $Url
   $outDisp = $Output
-  if (Get-Command Format-ShortPs1UrlLink -ErrorAction SilentlyContinue) {
-    $urlDisp = Format-ShortPs1UrlLink -Url $Url -Display $Url
+  if (Get-Command Format-ToastyUrlLink -ErrorAction SilentlyContinue) {
+    $urlDisp = Format-ToastyUrlLink -Url $Url -Display $Url
   }
-  if (Get-Command Format-ShortPs1PathLink -ErrorAction SilentlyContinue) {
-    try { $outDisp = Format-ShortPs1PathLink -Path $Output -Display $Output } catch { }
+  if (Get-Command Format-ToastyPathLink -ErrorAction SilentlyContinue) {
+    try { $outDisp = Format-ToastyPathLink -Path $Output -Display $Output } catch { }
   }
 
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg ("Downloading: " + $urlDisp) Info
-    Write-ShortPs1Msg ("Saving as:   " + $outDisp) Info
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg ("Downloading: " + $urlDisp) Info
+    Write-ToastyMsg ("Saving as:   " + $outDisp) Info
   } else {
     Write-Host "Downloading from URL: $Url"
     Write-Host "Saving as: $Output"
@@ -101,8 +101,8 @@ try {
 
   if ($NoProgress) { $ProgressPreference = $oldProgress }
 
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg "Download complete." Ok
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg "Download complete." Ok
   } else {
     Write-Host "Download complete!"
   }
@@ -111,8 +111,8 @@ try {
     if ($NoProgress) { $ProgressPreference = $oldProgress }
   } catch { }
 
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg "Error: $($_.Exception.Message)" Err
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg "Error: $($_.Exception.Message)" Err
   } else {
     Write-Host "Error: $($_.Exception.Message)"
   }

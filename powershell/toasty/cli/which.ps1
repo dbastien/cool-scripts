@@ -6,13 +6,13 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 $cmds = Get-Command $Name -ErrorAction SilentlyContinue
 if (-not $cmds) {
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg "which: no $Name in PATH" Err
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg "which: no $Name in PATH" Err
   } else {
     Write-Error "which: no $Name in PATH"
   }

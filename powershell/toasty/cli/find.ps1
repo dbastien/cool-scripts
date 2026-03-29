@@ -11,12 +11,12 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 if (-not (Test-Path -LiteralPath $Root)) {
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg "find: not found: $Root" Err
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg "find: not found: $Root" Err
   }
   exit 1
 }
@@ -37,8 +37,8 @@ function Walk {
 
     if ($show) {
       if ($Filter -eq "*" -or $it.Name -like $Filter) {
-        if (Get-Command Write-ShortPs1PathLine -ErrorAction SilentlyContinue) {
-          Write-ShortPs1PathLine -FullPath $it.FullName
+        if (Get-Command Write-ToastyPathLine -ErrorAction SilentlyContinue) {
+          Write-ToastyPathLine -FullPath $it.FullName
         } else {
           $it.FullName
         }

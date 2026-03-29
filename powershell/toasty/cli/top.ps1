@@ -10,7 +10,7 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 function Get-TopRows {
@@ -26,8 +26,8 @@ function Get-TopRows {
 
 do {
   Clear-Host
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg ("`u{1F4CA} top  sort=$Sort  n=$n  refresh=${s}s") Accent
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg ("`u{1F4CA} top  sort=$Sort  n=$n  refresh=${s}s") Accent
   }
   Write-Host (Get-Date)
   $top = Get-TopRows

@@ -39,7 +39,7 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 $ErrorActionPreference = "Stop"
@@ -181,11 +181,11 @@ function Write-ProfileBlock([string]$profilePath, [string]$newBlock) {
 Write-ProfileBlock -profilePath $PROFILE -newBlock $block
 
 Write-Host ""
-if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-  Write-ShortPs1Msg "Installed better ls/ll into your profile:" Ok
-  Write-ShortPs1Msg $PROFILE Info
-  Write-ShortPs1Msg "Reload:  . `$PROFILE" Accent
-  Write-ShortPs1Msg "Then try:  ls   ll" Muted
+if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+  Write-ToastyMsg "Installed better ls/ll into your profile:" Ok
+  Write-ToastyMsg $PROFILE Info
+  Write-ToastyMsg "Reload:  . `$PROFILE" Accent
+  Write-ToastyMsg "Then try:  ls   ll" Muted
 } else {
   Write-Host "Installed better ls/ll into your profile:"
   Write-Host "  $PROFILE"

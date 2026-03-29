@@ -26,20 +26,20 @@ begin {
   $__sp = $PSScriptRoot
   if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
   $__root = Split-Path $__sp -Parent
-  $__common = Join-Path $__root 'lib\ShortCommon.ps1'
+  $__common = Join-Path $__root 'lib\common.ps1'
   if (Test-Path -LiteralPath $__common) { . $__common }
 
-  $script:ShortPs1WcTargets = @()
-  $script:ShortPs1WcPiped = @()
-  $script:ShortPs1WcAnyFlag = $Lines -or $Words -or $Bytes -or $Chars -or $MaxLineLength
+  $script:ToastyWcTargets = @()
+  $script:ToastyWcPiped = @()
+  $script:ToastyWcAnyFlag = $Lines -or $Words -or $Bytes -or $Chars -or $MaxLineLength
 }
 
 process {
-  if ($null -ne $InputObject) { $script:ShortPs1WcPiped += $InputObject }
+  if ($null -ne $InputObject) { $script:ToastyWcPiped += $InputObject }
 }
 
 end {
-  if ($Path) { $script:ShortPs1WcTargets += $Path }
+  if ($Path) { $script:ToastyWcTargets += $Path }
 
   function Count-Text([string]$text, [string]$label) {
     $lineCount = 0
@@ -56,21 +56,21 @@ end {
     }
 
     $cols = @()
-    if (-not $script:ShortPs1WcAnyFlag -or $Lines) { $cols += $lineCount }
-    if (-not $script:ShortPs1WcAnyFlag -or $Words) { $cols += $wordCount }
-    if (-not $script:ShortPs1WcAnyFlag -or $Bytes) { $cols += $byteCount }
-    if ($script:ShortPs1WcAnyFlag -and $Chars) { $cols += $charCount }
+    if (-not $script:ToastyWcAnyFlag -or $Lines) { $cols += $lineCount }
+    if (-not $script:ToastyWcAnyFlag -or $Words) { $cols += $wordCount }
+    if (-not $script:ToastyWcAnyFlag -or $Bytes) { $cols += $byteCount }
+    if ($script:ToastyWcAnyFlag -and $Chars) { $cols += $charCount }
     if ($MaxLineLength) { $cols += $maxLen }
 
     if ($label) { $cols += $label }
     ($cols -join " ")
   }
 
-  if ($script:ShortPs1WcTargets.Count -gt 0) {
-    foreach ($p in $script:ShortPs1WcTargets) {
+  if ($script:ToastyWcTargets.Count -gt 0) {
+    foreach ($p in $script:ToastyWcTargets) {
       if (-not (Test-Path -LiteralPath $p)) {
-        if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-          Write-ShortPs1Msg "wc: not found: $p" Err
+        if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+          Write-ToastyMsg "wc: not found: $p" Err
         } else {
           Write-Error "wc: not found: $p"
         }
@@ -82,8 +82,8 @@ end {
     return
   }
 
-  if ($script:ShortPs1WcPiped.Count -gt 0) {
-    $text = ($script:ShortPs1WcPiped | ForEach-Object { $_.ToString() }) -join "`n"
+  if ($script:ToastyWcPiped.Count -gt 0) {
+    $text = ($script:ToastyWcPiped | ForEach-Object { $_.ToString() }) -join "`n"
     Count-Text $text ""
   }
 }

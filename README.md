@@ -1,17 +1,27 @@
 # cool-scripts
 
-This repository contains assorted scripts for PowerShell and Zsh.
+## Install Toasty (Windows)
 
-## Photon Toaster (Zsh)
+**Toasty** is the PowerShell toolkit under [`powershell/toasty/`](powershell/toasty/). The default install creates a directory junction from `~/.config/toasty` to the repo, adds `cli/` to your PATH, and optionally pulls in common **native CLI tools via winget** (see [`powershell/shortps1/cli/WingetManifest.ps1`](powershell/shortps1/cli/WingetManifest.ps1): ripgrep, bat, fd, eza, fzf, zoxide, jq, and the Extended tier unless you opt out).
 
-Shell theme, prompts, aliases, and integrations live under [`photontoaster/`](photontoaster/).
+1. Install [PowerShell 7+](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows) (`pwsh`) if you do not already have it. You also need **winget** (App Installer from the Microsoft Store is the usual source).
+2. Clone this repository and open a terminal.
+3. Run:
 
-On **Ubuntu inside WSL**, run once (as your normal user):
-
-```bash
-bash photontoaster/install-wsl-ubuntu-deps.sh
+```powershell
+pwsh -File .\powershell\toasty\install.ps1
 ```
 
-That installs apt packages (zsh, plugins, CLI tools), symlinks `~/.config/photontoaster` to this repo’s `photontoaster/` folder, seeds `config.toml` and `quotes.txt` if missing, and sets your login shell to zsh. Then wire `~/.zshrc` to source the files listed in the installer header (see top of `install-wsl-ubuntu-deps.sh`).
+This creates a junction `~/.config/toasty` -> the repo, adds `cli/` to PATH, seeds config, and patches your `$PROFILE`. Open a new terminal and you're done.
 
-Photon Toaster does not duplicate a second prompt/alias stack: configure behavior in `photontoaster/config.toml` (copy from `config.toml.default` if needed).
+Useful flags: **`-MinimalExtern`** (smaller winget set), **`-WhatIf`** (dry run), **`-Force`**, optional GUI/extension switches (see [`powershell/shortps1/README.md`](powershell/shortps1/README.md)).
+
+Layout, config, and profile hooks are documented in [`powershell/toasty/README.md`](powershell/toasty/README.md).
+
+## Linux / zsh
+
+Zsh theme, prompts, and related files live under [`linux/photontoaster/`](linux/photontoaster/). On Ubuntu under WSL, see the installer script in that folder.
+
+## Other folders
+
+Other script collections (for example `directory-opus/`, `powershell/references/`) are separate; each area may have its own README.

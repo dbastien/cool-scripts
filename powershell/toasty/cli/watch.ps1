@@ -15,7 +15,7 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 function Invoke-Watched {
@@ -30,16 +30,16 @@ function Invoke-Watched {
 
 do {
   Clear-Host
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg ("`u{1F440} watch  every ${s}s  (Ctrl+C to stop)") Accent
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg ("`u{1F440} watch  every ${s}s  (Ctrl+C to stop)") Accent
   }
   Write-Host (Get-Date)
   try {
     Invoke-Watched -Do $Do -Command $Command -ParameterSetName $PSCmdlet.ParameterSetName
   } catch {
     Write-Host ""
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg $_.ToString() Err
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg $_.ToString() Err
     } else {
       Write-Host $_
     }

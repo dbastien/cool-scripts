@@ -6,7 +6,7 @@ param(
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 function Format-Bytes([long]$b) {
@@ -43,14 +43,14 @@ if ($PassThru) {
 
 foreach ($r in $rows) {
   $color = $null
-  if (Get-Command Get-ShortPs1DfColor -ErrorAction SilentlyContinue) {
-    $color = Get-ShortPs1DfColor $r.PctUsed
+  if (Get-Command Get-ToastyDfColor -ErrorAction SilentlyContinue) {
+    $color = Get-ToastyDfColor $r.PctUsed
   }
   $rootDisplay = $r.Root
-  if (Get-Command Format-ShortPs1PathLink -ErrorAction SilentlyContinue) {
+  if (Get-Command Format-ToastyPathLink -ErrorAction SilentlyContinue) {
     try {
       $rp = (Resolve-Path -LiteralPath $r.Root -ErrorAction Stop).Path
-      $rootDisplay = Format-ShortPs1PathLink -Path $rp -Display $r.Root
+      $rootDisplay = Format-ToastyPathLink -Path $rp -Display $r.Root
     } catch { }
   }
   $usedS = if ($Human) { Format-Bytes $r.UsedB } else { $r.UsedGiB }

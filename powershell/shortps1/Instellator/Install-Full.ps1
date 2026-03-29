@@ -1,5 +1,4 @@
 param(
-  [string]$TargetDir = (Join-Path $env:USERPROFILE 'psbin'),
   [switch]$Force,
   [switch]$MinimalExtern,
   [switch]$WhatIf,
@@ -19,7 +18,7 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
 $psPow = Split-Path -Parent $shortPs1Root
 $ptRoot = Join-Path $psPow 'toasty'
-$common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
+$common = Join-Path $ptRoot 'lib\common.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 function Sync-PathFromRegistry {
@@ -34,16 +33,8 @@ function Sync-PathFromRegistry {
   }
 }
 
-function Test-NativeProbe {
-  param([string]$Name)
-  if (-not $Name) { return $false }
-  $cmd = Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-  if (-not $cmd) { return $false }
-  return ($cmd.Source -match '\.(exe|EXE)$')
-}
-
 $externScript = Join-Path $shortPs1Root 'cli\Install-Extern.ps1'
-$installScript = Join-Path $ptRoot 'Install-PsBin.ps1'
+$installScript = Join-Path $ptRoot 'install.ps1'
 $guiScript = Join-Path $here 'Install-GuiApps.ps1'
 $firefoxScript = Join-Path $here 'Install-FirefoxExtensions.ps1'
 $chromiumScript = Join-Path $here 'Install-ChromiumExtensions.ps1'
@@ -59,98 +50,79 @@ if ($MinimalExtern) {
   $externArgs['Extended'] = $true
 }
 
-if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-  Write-ShortPs1Msg 'Install-Full: step 1 - native CLIs (full PT-aligned winget set; use -MinimalExtern for a smaller subset)' Accent
+if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+  Write-ToastyMsg 'Install-Full: step 1 - native CLIs (full PT-aligned winget set; use -MinimalExtern for a smaller subset)' Accent
 } else {
   Write-Host '=== Install-Full: native CLIs ==='
 }
 & $externScript @externArgs
 
 if ($WhatIf) {
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg 'Install-Full: -WhatIf skips Install-PsBin.ps1 and GUI helpers (re-run without -WhatIf).' Warn
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg 'Install-Full: -WhatIf skips install.ps1 and GUI helpers (re-run without -WhatIf).' Warn
   } else {
-    Write-Warning 'Install-Full: -WhatIf skips Install-PsBin.ps1.'
+    Write-Warning 'Install-Full: -WhatIf skips install.ps1.'
   }
 } else {
   Sync-PathFromRegistry
 
-  $manifestPath = Join-Path $shortPs1Root 'cli\WingetManifest.ps1'
-  . $manifestPath
-
-  $excludeScripts = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-  foreach ($pkg in $ShortPs1WingetPackages) {
-    if (-not $pkg.ExcludeScript) { continue }
-    if (Test-NativeProbe $pkg.Probe) {
-      [void]$excludeScripts.Add($pkg.ExcludeScript)
-      if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-        Write-ShortPs1Msg "Will skip Toasty cli script (native $($pkg.Probe)): $($pkg.ExcludeScript)" Muted
-      }
-    }
-  }
-
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg 'Install-Full: step 2 - copy Toasty cli to psbin' Accent
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg 'Install-Full: step 2 - junction Toasty into ~/.config/toasty' Accent
   } else {
-    Write-Host '=== Install-Full: Toasty cli ==='
+    Write-Host '=== Install-Full: Toasty junction ==='
   }
 
   $installArgs = @{
-    TargetDir = $TargetDir
     Force     = $Force
-  }
-  if ($excludeScripts.Count -gt 0) {
-    $installArgs['Exclude'] = @($excludeScripts)
   }
 
   & $installScript @installArgs
 
   if ($GuiAppsAuto -and (Test-Path -LiteralPath $guiScript)) {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg 'Install-Full: optional - Install-GuiApps.ps1 -AutoDefault' Accent
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'Install-Full: optional - Install-GuiApps.ps1 -AutoDefault' Accent
     }
     & $guiScript -AutoDefault
   } elseif ($GuiApps -and (Test-Path -LiteralPath $guiScript)) {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg 'Install-Full: optional - Install-GuiApps.ps1' Accent
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'Install-Full: optional - Install-GuiApps.ps1' Accent
     }
     & $guiScript
   }
 
   if ($FirefoxExtensionsAuto -and (Test-Path -LiteralPath $firefoxScript)) {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg 'Install-Full: optional - Install-FirefoxExtensions.ps1 -AutoDefault' Accent
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'Install-Full: optional - Install-FirefoxExtensions.ps1 -AutoDefault' Accent
     }
     & $firefoxScript -AutoDefault
   } elseif ($FirefoxExtensions -and (Test-Path -LiteralPath $firefoxScript)) {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg 'Install-Full: optional - Install-FirefoxExtensions.ps1' Accent
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'Install-Full: optional - Install-FirefoxExtensions.ps1' Accent
     }
     & $firefoxScript
   }
 
   if ($ChromiumExtensionsAuto -and (Test-Path -LiteralPath $chromiumScript)) {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg 'Install-Full: optional - Install-ChromiumExtensions.ps1 -AutoDefault' Accent
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'Install-Full: optional - Install-ChromiumExtensions.ps1 -AutoDefault' Accent
     }
     & $chromiumScript -AutoDefault
   } elseif ($ChromiumExtensions -and (Test-Path -LiteralPath $chromiumScript)) {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg 'Install-Full: optional - Install-ChromiumExtensions.ps1' Accent
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'Install-Full: optional - Install-ChromiumExtensions.ps1' Accent
     }
     & $chromiumScript
   }
 }
 
 Write-Host ''
-if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-  Write-ShortPs1Msg 'Install-Full: done. Open a new terminal (Windows Terminal recommended) so PATH and shims apply.' Ok
-  Write-ShortPs1Msg 'Optional: dot-source  . (Join-Path $env:USERPROFILE ''psbin\ShellAliases.ps1'')' Muted
-  Write-ShortPs1Msg 'Optional startup quote: ..\toasty\shell\Install-ProfileHooks.ps1 (see README).' Muted
-  Write-ShortPs1Msg 'Optional Fira Code Nerd Font: re-run with -NerdFontFiraCode or tick it in Instellator\Install-GuiApps.ps1.' Muted
-  Write-ShortPs1Msg 'Optional zoxide (PowerShell):  Invoke-Expression (& { (zoxide init powershell | Out-String) })' Muted
-  Write-ShortPs1Msg 'Optional fzf key bindings: see junegunn/fzf Windows section on GitHub.' Muted
-  Write-ShortPs1Msg 'Instellator: Install-GuiApps.ps1  |  Firefox .xpi: Install-FirefoxExtensions.ps1  |  Chrome/Edge: Install-ChromiumExtensions.ps1' Muted
+if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+  Write-ToastyMsg 'Install-Full: done. Open a new terminal (Windows Terminal recommended) so PATH changes apply.' Ok
+  Write-ToastyMsg 'Profile was patched automatically. To re-run:  ..\toasty\shell\install-profile.ps1' Muted
+  Write-ToastyMsg 'Optional Fira Code Nerd Font: re-run with -NerdFontFiraCode or tick it in Instellator\Install-GuiApps.ps1.' Muted
+  Write-ToastyMsg 'Optional zoxide (PowerShell):  Invoke-Expression (& { (zoxide init powershell | Out-String) })' Muted
+  Write-ToastyMsg 'Optional fzf key bindings: see junegunn/fzf Windows section on GitHub.' Muted
+  Write-ToastyMsg 'Instellator: Install-GuiApps.ps1  |  Firefox .xpi: Install-FirefoxExtensions.ps1  |  Chrome/Edge: Install-ChromiumExtensions.ps1' Muted
 } else {
   Write-Host 'Install-Full: done.'
 }

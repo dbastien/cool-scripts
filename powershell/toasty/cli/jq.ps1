@@ -15,15 +15,15 @@ begin {
   $__sp = $PSScriptRoot
   if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
   $__root = Split-Path $__sp -Parent
-  $__common = Join-Path $__root 'lib\ShortCommon.ps1'
+  $__common = Join-Path $__root 'lib\common.ps1'
   if (Test-Path -LiteralPath $__common) { . $__common }
 
-  $script:ShortPs1JqChunks = [System.Collections.Generic.List[string]]::new()
+  $script:ToastyJqChunks = [System.Collections.Generic.List[string]]::new()
 }
 
 process {
   if (-not $Path -and $null -ne $InputObject) {
-    $script:ShortPs1JqChunks.Add($InputObject.ToString()) | Out-Null
+    $script:ToastyJqChunks.Add($InputObject.ToString()) | Out-Null
   }
 }
 
@@ -32,11 +32,11 @@ end {
     if ($Path) {
       $jsonText = Get-Content -LiteralPath $Path -Raw
     } else {
-      $jsonText = ($script:ShortPs1JqChunks -join "`n").TrimEnd()
+      $jsonText = ($script:ToastyJqChunks -join "`n").TrimEnd()
     }
   } catch {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg "jq: read failed: $($_)" Err
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg "jq: read failed: $($_)" Err
     }
     exit 1
   }
@@ -46,8 +46,8 @@ end {
   try {
     $obj = $jsonText | ConvertFrom-Json -ErrorAction Stop
   } catch {
-    if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-      Write-ShortPs1Msg "jq: invalid JSON: $($_)" Err
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg "jq: invalid JSON: $($_)" Err
     }
     exit 1
   }

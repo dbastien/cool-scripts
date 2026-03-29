@@ -33,13 +33,13 @@ if (-not $CsvPath) {
   $CsvPath = Join-Path $here 'GUI-apps.csv'
 }
 
-$common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
+$common = Join-Path $ptRoot 'lib\common.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 function Write-GuiAppsMsg {
   param([string]$Message, [ValidateSet('Info', 'Ok', 'Warn', 'Err', 'Muted', 'Accent')][string]$Level = 'Info')
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg $Message $Level
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg $Message $Level
   } else {
     Write-Host $Message
   }
@@ -186,7 +186,7 @@ function Show-CategoryDialog {
   $allCheckBoxes = [System.Collections.Generic.List[System.Windows.Controls.CheckBox]]::new()
 
   $window = New-Object Windows.Window
-  $window.Title = 'Desktop / GUI software (shortps1)'
+  $window.Title = 'Desktop / GUI software (toasty)'
   $window.Height = 560
   $window.Width = 780
 

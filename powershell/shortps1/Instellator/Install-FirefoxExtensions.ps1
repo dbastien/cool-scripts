@@ -33,13 +33,13 @@ if (-not $OutDir) {
   $OutDir = Join-Path $here 'firefox-extensions'
 }
 
-$common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
+$common = Join-Path $ptRoot 'lib\common.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 function Write-FxExtMsg {
   param([string]$Message, [ValidateSet('Info', 'Ok', 'Warn', 'Err', 'Muted', 'Accent')][string]$Level = 'Info')
-  if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg $Message $Level
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg $Message $Level
   } else {
     Write-Host $Message
   }

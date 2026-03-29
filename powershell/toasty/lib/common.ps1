@@ -1,14 +1,14 @@
-# Dot-sourced helpers for Toasty CLI (toasty\lib\ShortCommon.ps1): color, OSC 8 hyperlinks, icons.
+# Dot-sourced helpers for Toasty CLI: color, OSC 8 hyperlinks, icons.
 # Not intended to be run as a standalone command.
 
-$script:ShortPs1ColorInitialized = $false
-$script:ShortPs1UseColor = $false
-$script:ShortPs1UseHyperlinks = $false
+$script:ToastyColorInit = $false
+$script:ToastyUseColor = $false
+$script:ToastyUseHyperlinks = $false
 
-function Initialize-ShortPs1Host {
-    if ($script:ShortPs1ColorInitialized) { return }
-    $script:ShortPs1ColorInitialized = $true
-    $noColor = $env:NO_COLOR -or ($env:SHORTPS1_NO_COLOR -eq '1')
+function Initialize-ToastyHost {
+    if ($script:ToastyColorInit) { return }
+    $script:ToastyColorInit = $true
+    $noColor = $env:NO_COLOR -or ($env:TOASTY_NO_COLOR -eq '1')
     $vt = $false
     try {
         if ($Host.UI.SupportsVirtualTerminal) { $vt = $true }
@@ -16,13 +16,13 @@ function Initialize-ShortPs1Host {
     if (-not $vt -and $env:WT_SESSION) { $vt = $true }
     if (-not $vt -and $env:TERM_PROGRAM) { $vt = $true }
     if (-not $vt -and $env:ConEmuANSI -eq 'ON') { $vt = $true }
-    $script:ShortPs1UseColor = (-not $noColor) -and $vt
-    $script:ShortPs1UseHyperlinks = $script:ShortPs1UseColor -and ($env:SHORTPS1_NO_HYPERLINKS -ne '1')
+    $script:ToastyUseColor = (-not $noColor) -and $vt
+    $script:ToastyUseHyperlinks = $script:ToastyUseColor -and ($env:TOASTY_NO_HYPERLINKS -ne '1')
 }
 
-function Get-ShortPs1Esc { return [string][char]0x1B }
+function Get-ToastyEsc { return [string][char]0x1B }
 
-function Format-ShortPs1FileUri {
+function Format-ToastyFileUri {
     param([Parameter(Mandatory)][string]$Path)
     $full = $null
     try {
@@ -42,45 +42,45 @@ function Format-ShortPs1FileUri {
     return ('file:///' + $norm.TrimStart('/'))
 }
 
-function Format-ShortPs1Osc8 {
+function Format-ToastyOsc8 {
     param(
         [Parameter(Mandatory)][string]$Uri,
         [Parameter(Mandatory)][string]$Text
     )
-    Initialize-ShortPs1Host
-    if (-not $script:ShortPs1UseHyperlinks) { return $Text }
-    $e = Get-ShortPs1Esc
+    Initialize-ToastyHost
+    if (-not $script:ToastyUseHyperlinks) { return $Text }
+    $e = Get-ToastyEsc
     $bel = [char]7
     return ($e + ']8;;' + $Uri + $bel + $Text + $e + ']8;;' + $bel)
 }
 
-function Format-ShortPs1PathLink {
+function Format-ToastyPathLink {
     param(
         [Parameter(Mandatory)][string]$Path,
         [string]$Display
     )
-    Initialize-ShortPs1Host
+    Initialize-ToastyHost
     $resolved = $Path
     try { $resolved = (Resolve-Path -LiteralPath $Path -ErrorAction Stop).Path } catch { }
     if (-not $Display) { $Display = $resolved }
-    $uri = Format-ShortPs1FileUri $resolved
-    return (Format-ShortPs1Osc8 -Uri $uri -Text $Display)
+    $uri = Format-ToastyFileUri $resolved
+    return (Format-ToastyOsc8 -Uri $uri -Text $Display)
 }
 
-function Format-ShortPs1UrlLink {
+function Format-ToastyUrlLink {
     param(
         [Parameter(Mandatory)][string]$Url,
         [string]$Display
     )
-    Initialize-ShortPs1Host
+    Initialize-ToastyHost
     if (-not $Display) { $Display = $Url }
-    if (-not $script:ShortPs1UseHyperlinks) { return $Display }
-    $e = Get-ShortPs1Esc
+    if (-not $script:ToastyUseHyperlinks) { return $Display }
+    $e = Get-ToastyEsc
     $bel = [char]7
     return ($e + ']8;;' + $Url + $bel + $Display + $e + ']8;;' + $bel)
 }
 
-function Get-ShortPs1ItemIcon {
+function Get-ToastyItemIcon {
     param([Parameter(Mandatory)]$Item)
     if ($Item.PSIsContainer) { return "`u{1F4C1}" }
     $attr = $Item.Attributes
@@ -96,13 +96,13 @@ function Get-ShortPs1ItemIcon {
     return "`u{1F4C4}"
 }
 
-function Write-ShortPs1Msg {
+function Write-ToastyMsg {
     param(
         [string]$Message,
         [ValidateSet('Info', 'Ok', 'Warn', 'Err', 'Muted', 'Accent')][string]$Level = 'Info'
     )
-    Initialize-ShortPs1Host
-    if (-not $script:ShortPs1UseColor) {
+    Initialize-ToastyHost
+    if (-not $script:ToastyUseColor) {
         Write-Host $Message
         return
     }
@@ -127,34 +127,34 @@ function Write-ShortPs1Msg {
     Write-Host ($icon + $Message) -ForegroundColor $color
 }
 
-function Get-ShortPs1DfColor {
+function Get-ToastyDfColor {
     param([double]$PctUsed)
-    Initialize-ShortPs1Host
-    if (-not $script:ShortPs1UseColor) { return $null }
+    Initialize-ToastyHost
+    if (-not $script:ToastyUseColor) { return $null }
     if ($PctUsed -ge 95) { return 'Red' }
     if ($PctUsed -ge 85) { return 'Yellow' }
     if ($PctUsed -ge 70) { return 'DarkYellow' }
     return 'Green'
 }
 
-function Get-ShortPs1DuColor {
+function Get-ToastyDuColor {
     param([double]$MiB)
-    Initialize-ShortPs1Host
-    if (-not $script:ShortPs1UseColor) { return $null }
+    Initialize-ToastyHost
+    if (-not $script:ToastyUseColor) { return $null }
     if ($MiB -ge 1024) { return 'Red' }
     if ($MiB -ge 256) { return 'Yellow' }
     return 'Cyan'
 }
 
-function Write-ShortPs1PathLine {
+function Write-ToastyPathLine {
     param(
         [Parameter(Mandatory)][string]$FullPath,
         [string]$Prefix = ''
     )
-    $link = Format-ShortPs1PathLink -Path $FullPath -Display $FullPath
+    $link = Format-ToastyPathLink -Path $FullPath -Display $FullPath
     try {
         $item = Get-Item -LiteralPath $FullPath -Force -ErrorAction Stop
-        $ic = Get-ShortPs1ItemIcon $item
+        $ic = Get-ToastyItemIcon $item
         Write-Host ($Prefix + $ic + ' ' + $link)
     } catch {
         Write-Host ($Prefix + "`u{1F4C4} " + $link)

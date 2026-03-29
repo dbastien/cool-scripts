@@ -3,7 +3,7 @@
 $__sp = $PSScriptRoot
 if (-not $__sp -and $MyInvocation.MyCommand.Path) { $__sp = Split-Path -Parent $MyInvocation.MyCommand.Path }
 $__root = Split-Path $__sp -Parent
-$__common = Join-Path $__root 'lib\ShortCommon.ps1'
+$__common = Join-Path $__root 'lib\common.ps1'
 if (Test-Path -LiteralPath $__common) { . $__common }
 
 function Format-Up([TimeSpan]$ts) {
@@ -15,7 +15,7 @@ function Format-Up([TimeSpan]$ts) {
   return "{0}:{1:00}" -f $ts.Hours, $ts.Minutes
 }
 
-Initialize-ShortPs1Host
+Initialize-ToastyHost
 $now = Get-Date
 $os = Get-CimInstance Win32_OperatingSystem
 $boot = $os.LastBootUpTime
@@ -31,7 +31,7 @@ $timeStr = $now.ToString("HH:mm:ss")
 $upStr = Format-Up $up
 $line = "$timeStr up $upStr,  $userCount users,  load average: N/A"
 
-if ($script:ShortPs1UseColor) {
+if ($script:ToastyUseColor) {
   Write-Host "`u{23F1} " -NoNewline -ForegroundColor Cyan
   Write-Host $timeStr -NoNewline -ForegroundColor White
   Write-Host " up " -NoNewline -ForegroundColor DarkGray
