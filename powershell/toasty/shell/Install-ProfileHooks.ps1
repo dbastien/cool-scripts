@@ -1,9 +1,9 @@
 # Appends marked blocks to your PowerShell profile (quote of the day, optional ShortPs1 prompt).
-# Run from repo:  pwsh -File .\powershell\photontoaster\shell\Install-ProfileHooks.ps1
-# Remove quote:    .\powershell\photontoaster\shell\Install-ProfileHooks.ps1 -Remove
-# Remove prompt:   .\powershell\photontoaster\shell\Install-ProfileHooks.ps1 -RemovePrompt
-# Add prompt:      .\powershell\photontoaster\shell\Install-ProfileHooks.ps1 -DopeShellPrompt
-# Prompt only:     .\powershell\photontoaster\shell\Install-ProfileHooks.ps1 -DopeShellPrompt -SkipQuote
+# Run from repo:  pwsh -File .\powershell\toasty\shell\Install-ProfileHooks.ps1
+# Remove quote:    .\powershell\toasty\shell\Install-ProfileHooks.ps1 -Remove
+# Remove prompt:   .\powershell\toasty\shell\Install-ProfileHooks.ps1 -RemovePrompt
+# Add prompt:      .\powershell\toasty\shell\Install-ProfileHooks.ps1 -DopeShellPrompt
+# Prompt only:     .\powershell\toasty\shell\Install-ProfileHooks.ps1 -DopeShellPrompt -SkipQuote
 
 param(
   [string]$TargetDir = (Join-Path $env:USERPROFILE 'psbin'),
@@ -99,7 +99,7 @@ if (-not $SkipQuote) {
     } else {
       Write-ProfileText $ProfilePath $next
       Write-Host "Appended quote-of-the-day hook to: $ProfilePath"
-      Write-Host "Ensure quotes exist at ~/.local/share/shortps1/quotes.txt (photontoaster Install-PsBin.ps1 seeds when missing)."
+      Write-Host "Ensure quotes exist at ~/.local/share/shortps1/quotes.txt (toasty Install-PsBin.ps1 seeds when missing)."
     }
   } else {
     Write-Host "Profile already contains shortps1-quote block: $ProfilePath"

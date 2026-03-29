@@ -2,7 +2,7 @@
 BeforeAll {
     $script:ShortPs1Root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
     $script:PsPow = Split-Path -Parent $script:ShortPs1Root
-    $script:PtRoot = Join-Path $script:PsPow 'photontoaster'
+    $script:PtRoot = Join-Path $script:PsPow 'toasty'
     $script:DopeCli = Join-Path $script:PtRoot 'cli'
     $script:OldNoColor = $env:NO_COLOR
     $env:NO_COLOR = '1'
@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'Script syntax' {
-    It 'parses every PhotonToaster cli tool and shared helpers without errors' {
+    It 'parses every Toasty cli tool and shared helpers without errors' {
         $paths = @(
             (Get-ChildItem -LiteralPath $script:DopeCli -Filter '*.ps1' -File).FullName
             (Join-Path $script:PtRoot 'lib\ShortCommon.ps1')

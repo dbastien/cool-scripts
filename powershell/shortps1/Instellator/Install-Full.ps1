@@ -18,7 +18,7 @@ $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
 $psPow = Split-Path -Parent $shortPs1Root
-$ptRoot = Join-Path $psPow 'photontoaster'
+$ptRoot = Join-Path $psPow 'toasty'
 $common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
@@ -84,15 +84,15 @@ if ($WhatIf) {
     if (Test-NativeProbe $pkg.Probe) {
       [void]$excludeScripts.Add($pkg.ExcludeScript)
       if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-        Write-ShortPs1Msg "Will skip PhotonToaster cli script (native $($pkg.Probe)): $($pkg.ExcludeScript)" Muted
+        Write-ShortPs1Msg "Will skip Toasty cli script (native $($pkg.Probe)): $($pkg.ExcludeScript)" Muted
       }
     }
   }
 
   if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg 'Install-Full: step 2 - copy PhotonToaster cli to psbin' Accent
+    Write-ShortPs1Msg 'Install-Full: step 2 - copy Toasty cli to psbin' Accent
   } else {
-    Write-Host '=== Install-Full: PhotonToaster cli ==='
+    Write-Host '=== Install-Full: Toasty cli ==='
   }
 
   $installArgs = @{
@@ -146,7 +146,7 @@ Write-Host ''
 if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
   Write-ShortPs1Msg 'Install-Full: done. Open a new terminal (Windows Terminal recommended) so PATH and shims apply.' Ok
   Write-ShortPs1Msg 'Optional: dot-source  . (Join-Path $env:USERPROFILE ''psbin\ShellAliases.ps1'')' Muted
-  Write-ShortPs1Msg 'Optional startup quote: ..\photontoaster\shell\Install-ProfileHooks.ps1 (see README).' Muted
+  Write-ShortPs1Msg 'Optional startup quote: ..\toasty\shell\Install-ProfileHooks.ps1 (see README).' Muted
   Write-ShortPs1Msg 'Optional Fira Code Nerd Font: re-run with -NerdFontFiraCode or tick it in Instellator\Install-GuiApps.ps1.' Muted
   Write-ShortPs1Msg 'Optional zoxide (PowerShell):  Invoke-Expression (& { (zoxide init powershell | Out-String) })' Muted
   Write-ShortPs1Msg 'Optional fzf key bindings: see junegunn/fzf Windows section on GitHub.' Muted

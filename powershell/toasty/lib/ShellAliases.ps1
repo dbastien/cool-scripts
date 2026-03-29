@@ -1,7 +1,7 @@
 # Dot-source into your profile (definitions must run in your session, not as a -File script):
 #   . (Join-Path $env:USERPROFILE 'psbin\ShellAliases.ps1')
-# Or from a clone (photontoaster):
-#   . .\powershell\photontoaster\lib\ShellAliases.ps1
+# Or from a clone (toasty):
+#   . .\powershell\toasty\lib\ShellAliases.ps1
 
 # Parent hops: each extra dot is one more ".." segment (.. = 1 level, ... = 2 levels, etc.).
 function global:.. { Set-Location .. }

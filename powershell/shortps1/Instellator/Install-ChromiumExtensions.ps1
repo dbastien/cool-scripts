@@ -28,7 +28,7 @@ $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
 $psPow = Split-Path -Parent $shortPs1Root
-$ptRoot = Join-Path $psPow 'photontoaster'
+$ptRoot = Join-Path $psPow 'toasty'
 if (-not $CsvPath) {
   $CsvPath = Join-Path $here 'Chromium-extensions.csv'
 }

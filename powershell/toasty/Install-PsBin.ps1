@@ -13,7 +13,7 @@ if (Test-Path -LiteralPath $common) { . $common }
 
 $cliDir = Join-Path $ptRoot 'cli'
 if (-not (Test-Path -LiteralPath $cliDir -PathType Container)) {
-  throw "cli folder not found under photontoaster: $cliDir"
+  throw "cli folder not found under toasty: $cliDir"
 }
 
 New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null

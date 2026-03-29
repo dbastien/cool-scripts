@@ -1,7 +1,7 @@
 #requires -Version 7.2
 <#
 .SYNOPSIS
-    Run Pester 5 tests for PhotonToaster cli scripts. Ensures dev dependencies first.
+    Run Pester 5 tests for Toasty cli scripts. Ensures dev dependencies first.
 .EXAMPLE
     pwsh -NoProfile -File .\tests\RunTests.ps1
 #>

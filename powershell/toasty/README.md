@@ -1,4 +1,4 @@
-# PhotonToaster (PowerShell)
+# Toasty (PowerShell)
 
 Windows hub for **CLI scripts** (`cli\`), **shared helpers** (`lib\`), and **shell profile** pieces (`shell\`). This folder does **not** run winget, Instellator, or other full-machine installers; those stay under `powershell\shortps1\`.
 
@@ -11,14 +11,14 @@ Windows hub for **CLI scripts** (`cli\`), **shared helpers** (`lib\`), and **she
 | `shell\` | `QuoteOfDay.ps1`, `ShortPs1Prompt.ps1`, `Install-ProfileHooks.ps1`, `quotes.default.txt`, `prompt.config.default.toml`. |
 | `Install-PsBin.ps1` | Copies `cli\*.ps1` plus shell helpers and `lib\ShellAliases.ps1` into `%USERPROFILE%\psbin` (default), updates User PATH, seeds quotes and prompt config when missing. |
 | `config.psd1` | Static defaults (quote paths, module label). |
-| `Init.ps1` | Dot-source to load `config.psd1` and dot-source `lib\ShortCommon.ps1`; sets `$PhotonToasterRoot`, `$PhotonToasterConfig`, `$PhotonToasterQuotesFile`, etc. |
+| `Init.ps1` | Dot-source to load `config.psd1` and dot-source `lib\ShortCommon.ps1`; sets `$ToastyRoot`, `$ToastyConfig`, `$ToastyQuotesFile`, etc. |
 
 ## Quick use
 
 From repo (full path to this folder):
 
 ```powershell
-pwsh -File .\powershell\photontoaster\Install-PsBin.ps1
+pwsh -File .\powershell\toasty\Install-PsBin.ps1
 ```
 
 Or from `powershell\shortps1` (forwarder):
@@ -30,12 +30,12 @@ Or from `powershell\shortps1` (forwarder):
 Optional library-style load (no copy to `psbin`):
 
 ```powershell
-. (Join-Path $repo 'powershell\photontoaster\Init.ps1')
+. (Join-Path $repo 'powershell\toasty\Init.ps1')
 ```
 
 ## Full Windows setup
 
-For **winget native CLIs** plus **PhotonToaster** in one flow, use `powershell\shortps1\Install-Full.ps1` (or `Instellator\Install-Full.ps1`).
+For **winget native CLIs** plus **Toasty** in one flow, use `powershell\shortps1\Install-Full.ps1` (or `Instellator\Install-Full.ps1`).
 
 ## Profile hooks
 

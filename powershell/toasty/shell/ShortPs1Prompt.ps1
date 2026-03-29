@@ -1,11 +1,11 @@
-# Segment-driven prompt for PowerShell 7+ (dope shell; TOML config). Follows Photon Toaster layout for
-# [prompt] / [colors] so the same config.toml can drive zsh (photontoaster/) and PowerShell.
+# Segment-driven prompt for PowerShell 7+ (dope shell; TOML config). Follows Toasty layout for
+# [prompt] / [colors] so the same config.toml can drive zsh and PowerShell.
 # Dot-source after install:  . (Join-Path $env:USERPROFILE 'psbin\ShortPs1Prompt.ps1')
 # Config (first match): -ConfigPath, DOPE_SHELL_PROMPT_CONFIG or SHORTPS1_PROMPT_CONFIG,
 #   DOPE_SHELL_CONFIG_DIR\config.toml (else %USERPROFILE%\.config\dopeshell\config.toml),
-#   PHOTONTOASTER_CONFIG_DIR\config.toml (else %USERPROFILE%\.config\photontoaster\config.toml),
+#   TOASTY_CONFIG_DIR\config.toml (else %USERPROFILE%\.config\toasty\config.toml),
 #   prompt.config.toml next to this script (e.g. psbin), else prompt.config.default.toml next to this script.
-# RGB env overrides (first wins per key): DOPE_SHELL_C_* then PHOTONTOASTER_C_* (same names as Photon env.sh).
+# RGB env overrides (first wins per key): DOPE_SHELL_C_* then TOASTY_C_* (use DOPE_SHELL_C_* for cross-platform).
 # Disable: $env:SHORTPS1_NO_DOPE_PROMPT = '1' before dot-sourcing.
 
 param(
@@ -82,16 +82,16 @@ function Get-ShortPs1PtPalette {
     if ($Toml.ContainsKey($k) -and $Toml[$k]) { $p[(Get-Culture).TextInfo.ToTitleCase($key)] = $Toml[$k] }
   }
   $pairs = @(
-    @{ Key = 'Blue'; Dope = 'DOPE_SHELL_C_BLUE'; Pt = 'PHOTONTOASTER_C_BLUE' },
-    @{ Key = 'Violet'; Dope = 'DOPE_SHELL_C_VIOLET'; Pt = 'PHOTONTOASTER_C_VIOLET' },
-    @{ Key = 'Ok'; Dope = 'DOPE_SHELL_C_OK'; Pt = 'PHOTONTOASTER_C_OK' },
-    @{ Key = 'Err'; Dope = 'DOPE_SHELL_C_ERR'; Pt = 'PHOTONTOASTER_C_ERR' },
-    @{ Key = 'Warn'; Dope = 'DOPE_SHELL_C_WARN'; Pt = 'PHOTONTOASTER_C_WARN' },
-    @{ Key = 'White'; Dope = 'DOPE_SHELL_C_WHITE'; Pt = 'PHOTONTOASTER_C_WHITE' },
-    @{ Key = 'Dark'; Dope = 'DOPE_SHELL_C_DARK'; Pt = 'PHOTONTOASTER_C_DARK' },
-    @{ Key = 'Accent'; Dope = 'DOPE_SHELL_C_ACCENT'; Pt = 'PHOTONTOASTER_C_ACCENT' },
-    @{ Key = 'Ssh'; Dope = 'DOPE_SHELL_C_SSH'; Pt = 'PHOTONTOASTER_C_SSH' },
-    @{ Key = 'Venv'; Dope = 'DOPE_SHELL_C_VENV'; Pt = 'PHOTONTOASTER_C_VENV' }
+    @{ Key = 'Blue'; Dope = 'DOPE_SHELL_C_BLUE'; Pt = 'TOASTY_C_BLUE' },
+    @{ Key = 'Violet'; Dope = 'DOPE_SHELL_C_VIOLET'; Pt = 'TOASTY_C_VIOLET' },
+    @{ Key = 'Ok'; Dope = 'DOPE_SHELL_C_OK'; Pt = 'TOASTY_C_OK' },
+    @{ Key = 'Err'; Dope = 'DOPE_SHELL_C_ERR'; Pt = 'TOASTY_C_ERR' },
+    @{ Key = 'Warn'; Dope = 'DOPE_SHELL_C_WARN'; Pt = 'TOASTY_C_WARN' },
+    @{ Key = 'White'; Dope = 'DOPE_SHELL_C_WHITE'; Pt = 'TOASTY_C_WHITE' },
+    @{ Key = 'Dark'; Dope = 'DOPE_SHELL_C_DARK'; Pt = 'TOASTY_C_DARK' },
+    @{ Key = 'Accent'; Dope = 'DOPE_SHELL_C_ACCENT'; Pt = 'TOASTY_C_ACCENT' },
+    @{ Key = 'Ssh'; Dope = 'DOPE_SHELL_C_SSH'; Pt = 'TOASTY_C_SSH' },
+    @{ Key = 'Venv'; Dope = 'DOPE_SHELL_C_VENV'; Pt = 'TOASTY_C_VENV' }
   )
   foreach ($pair in $pairs) {
     $ev = $null
@@ -117,7 +117,7 @@ function Resolve-DopeShellPromptConfigPath {
   $dir = if ($env:DOPE_SHELL_CONFIG_DIR) { $env:DOPE_SHELL_CONFIG_DIR } else { Join-Path $env:USERPROFILE '.config\dopeshell' }
   $p = Join-Path $dir 'config.toml'
   if (Test-Path -LiteralPath $p) { return (Resolve-Path -LiteralPath $p).Path }
-  $ptDir = if ($env:PHOTONTOASTER_CONFIG_DIR) { $env:PHOTONTOASTER_CONFIG_DIR } else { Join-Path $env:USERPROFILE '.config\photontoaster' }
+  $ptDir = if ($env:TOASTY_CONFIG_DIR) { $env:TOASTY_CONFIG_DIR } else { Join-Path $env:USERPROFILE '.config\toasty' }
   $ptCfg = Join-Path $ptDir 'config.toml'
   if (Test-Path -LiteralPath $ptCfg) { return (Resolve-Path -LiteralPath $ptCfg).Path }
   $here = $PSScriptRoot

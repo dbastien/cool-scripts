@@ -12,7 +12,7 @@ $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
 $psPow = Split-Path -Parent $shortPs1Root
-$ptRoot = Join-Path $psPow 'photontoaster'
+$ptRoot = Join-Path $psPow 'toasty'
 $common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 

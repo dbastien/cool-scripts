@@ -1,4 +1,4 @@
-# Dot-sourced helpers for PhotonToaster CLI (photontoaster\lib\ShortCommon.ps1): color, OSC 8 hyperlinks, icons.
+# Dot-sourced helpers for Toasty CLI (toasty\lib\ShortCommon.ps1): color, OSC 8 hyperlinks, icons.
 # Not intended to be run as a standalone command.
 
 $script:ShortPs1ColorInitialized = $false
