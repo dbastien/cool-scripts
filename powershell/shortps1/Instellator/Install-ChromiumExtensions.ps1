@@ -9,13 +9,13 @@
   Data: Chromium-extensions.csv next to this script. Use -AutoDefault for CSV defaults only.
 
 .EXAMPLE
-  .\Instellaator\Install-ChromiumExtensions.ps1
+  .\Instellator\Install-ChromiumExtensions.ps1
 
 .EXAMPLE
-  .\Instellaator\Install-ChromiumExtensions.ps1 -AutoDefault
+  .\Instellator\Install-ChromiumExtensions.ps1 -AutoDefault
 
 .EXAMPLE
-  .\Instellaator\Install-ChromiumExtensions.ps1 -WhatIf
+  .\Instellator\Install-ChromiumExtensions.ps1 -WhatIf
 #>
 param(
   [string]$CsvPath = '',
@@ -27,11 +27,13 @@ $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
+$psPow = Split-Path -Parent $shortPs1Root
+$ptRoot = Join-Path $psPow 'photontoaster'
 if (-not $CsvPath) {
   $CsvPath = Join-Path $here 'Chromium-extensions.csv'
 }
 
-$common = Join-Path $shortPs1Root 'SharedLibs\ShortCommon.ps1'
+$common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 function Write-CrExtMsg {

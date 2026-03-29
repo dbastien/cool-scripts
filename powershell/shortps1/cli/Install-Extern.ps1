@@ -11,7 +11,9 @@ $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
-$common = Join-Path $shortPs1Root 'SharedLibs\ShortCommon.ps1'
+$psPow = Split-Path -Parent $shortPs1Root
+$ptRoot = Join-Path $psPow 'photontoaster'
+$common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 $manifestPath = Join-Path $here 'WingetManifest.ps1'
@@ -157,7 +159,7 @@ function Invoke-NerdFontFiraCodeInstall {
     }
   }
   if (Get-Command Write-ShortPs1Msg -ErrorAction SilentlyContinue) {
-    Write-ShortPs1Msg 'Nerd Font Fira Code: install oh-my-posh (winget) or Chocolatey, then re-run with -NerdFontFiraCode, or use Instellaator\Install-GuiApps.ps1 (Fira Code Nerd Font).' Warn
+    Write-ShortPs1Msg 'Nerd Font Fira Code: install oh-my-posh (winget) or Chocolatey, then re-run with -NerdFontFiraCode, or use Instellator\Install-GuiApps.ps1 (Fira Code Nerd Font).' Warn
   } else {
     Write-Warning 'Nerd Font Fira Code: could not install automatically.'
   }

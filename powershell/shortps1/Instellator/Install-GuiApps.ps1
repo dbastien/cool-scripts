@@ -8,13 +8,13 @@
   For headless installs of CSV defaults only: -AutoDefault
 
 .EXAMPLE
-  .\Instellaator\Install-GuiApps.ps1
+  .\Instellator\Install-GuiApps.ps1
 
 .EXAMPLE
-  .\Instellaator\Install-GuiApps.ps1 -AutoDefault
+  .\Instellator\Install-GuiApps.ps1 -AutoDefault
 
 .EXAMPLE
-  .\Instellaator\Install-GuiApps.ps1 -CsvPath 'D:\my-apps.csv' -WhatIf
+  .\Instellator\Install-GuiApps.ps1 -CsvPath 'D:\my-apps.csv' -WhatIf
 #>
 param(
   [string]$CsvPath = '',
@@ -27,11 +27,13 @@ $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
+$psPow = Split-Path -Parent $shortPs1Root
+$ptRoot = Join-Path $psPow 'photontoaster'
 if (-not $CsvPath) {
   $CsvPath = Join-Path $here 'GUI-apps.csv'
 }
 
-$common = Join-Path $shortPs1Root 'SharedLibs\ShortCommon.ps1'
+$common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 function Write-GuiAppsMsg {

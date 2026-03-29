@@ -1,6 +1,9 @@
 // Directory Opus — Advanced Rename script (JScript)
 //
-// Use: Rename dialog → enable Script → Script Type: JScript → paste this file.
+// NOT a Script add-in — do not copy to Preferences → Toolbars → Scripts (add-ins).
+// Opus will unload it: "does not implement any known events".
+//
+// Use: Rename dialog → enable Script → Script Type: JScript → paste this file (or path).
 // Collapses repeated identical extensions:  notes.txt.txt → notes.txt
 // (case-insensitive on the repeated pair). Files only; folders unchanged.
 //

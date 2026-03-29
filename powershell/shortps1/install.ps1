@@ -1,3 +1,3 @@
-# Forwards to dope-shell\install.ps1 (copy dopecli + shell helpers to psbin).
+# Forwards to photontoaster\Install-PsBin.ps1 (copy cli + shell helpers to psbin).
 $ErrorActionPreference = 'Stop'
-& (Join-Path $PSScriptRoot 'dope-shell\install.ps1') @args
+& (Join-Path $PSScriptRoot '..\photontoaster\Install-PsBin.ps1') @args

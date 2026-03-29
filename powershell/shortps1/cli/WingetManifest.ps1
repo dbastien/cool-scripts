@@ -1,5 +1,5 @@
 # Winget package IDs for common dev CLIs (curated manifest).
-# Dot-sourced by cli\Install-Extern.ps1 and Instellaator\Install-Full.ps1 — not copied to psbin (see dope-shell\install.ps1).
+# Dot-sourced by cli\Install-Extern.ps1 and Instellator\Install-Full.ps1 — not copied to psbin (see photontoaster\Install-PsBin.ps1 or shortps1\install.ps1).
 #
 # Mapping notes (Ubuntu PT `packages=(...)` vs this manifest):
 # - ncdu (apt) -> gdu (dundee.gdu); same role: disk usage UI.

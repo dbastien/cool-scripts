@@ -8,10 +8,10 @@
   Install downloaded .xpi files from about:addons or drag into Firefox.
 
 .EXAMPLE
-  .\Instellaator\Install-FirefoxExtensions.ps1
+  .\Instellator\Install-FirefoxExtensions.ps1
 
 .EXAMPLE
-  .\Instellaator\Install-FirefoxExtensions.ps1 -AutoDefault
+  .\Instellator\Install-FirefoxExtensions.ps1 -AutoDefault
 #>
 param(
   [string]$CsvPath = '',
@@ -24,6 +24,8 @@ $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $shortPs1Root = Split-Path -Parent $here
+$psPow = Split-Path -Parent $shortPs1Root
+$ptRoot = Join-Path $psPow 'photontoaster'
 if (-not $CsvPath) {
   $CsvPath = Join-Path $here 'Firefox-extensions.csv'
 }
@@ -31,7 +33,7 @@ if (-not $OutDir) {
   $OutDir = Join-Path $here 'firefox-extensions'
 }
 
-$common = Join-Path $shortPs1Root 'SharedLibs\ShortCommon.ps1'
+$common = Join-Path $ptRoot 'lib\ShortCommon.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 function Write-FxExtMsg {

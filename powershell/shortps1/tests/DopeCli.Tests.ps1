@@ -1,7 +1,9 @@
 #requires -Version 7.2
 BeforeAll {
     $script:ShortPs1Root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-    $script:DopeCli = Join-Path $script:ShortPs1Root 'dopecli'
+    $script:PsPow = Split-Path -Parent $script:ShortPs1Root
+    $script:PtRoot = Join-Path $script:PsPow 'photontoaster'
+    $script:DopeCli = Join-Path $script:PtRoot 'cli'
     $script:OldNoColor = $env:NO_COLOR
     $env:NO_COLOR = '1'
 }
@@ -15,20 +17,21 @@ AfterAll {
 }
 
 Describe 'Script syntax' {
-    It 'parses every dopecli tool and shared helpers without errors' {
+    It 'parses every PhotonToaster cli tool and shared helpers without errors' {
         $paths = @(
             (Get-ChildItem -LiteralPath $script:DopeCli -Filter '*.ps1' -File).FullName
-            (Join-Path $script:ShortPs1Root 'SharedLibs\ShortCommon.ps1')
-            (Join-Path $script:ShortPs1Root 'SharedLibs\ShellAliases.ps1')
-            (Join-Path $script:ShortPs1Root 'dope-shell\install.ps1')
-            (Join-Path $script:ShortPs1Root 'dope-shell\QuoteOfDay.ps1')
-            (Join-Path $script:ShortPs1Root 'dope-shell\Install-ProfileHooks.ps1')
-            (Join-Path $script:ShortPs1Root 'dope-shell\ShortPs1Prompt.ps1')
+            (Join-Path $script:PtRoot 'lib\ShortCommon.ps1')
+            (Join-Path $script:PtRoot 'lib\ShellAliases.ps1')
+            (Join-Path $script:PtRoot 'Install-PsBin.ps1')
+            (Join-Path $script:PtRoot 'Init.ps1')
+            (Join-Path $script:PtRoot 'shell\QuoteOfDay.ps1')
+            (Join-Path $script:PtRoot 'shell\Install-ProfileHooks.ps1')
+            (Join-Path $script:PtRoot 'shell\ShortPs1Prompt.ps1')
             (Join-Path $script:ShortPs1Root 'cli\Install-Extern.ps1')
             (Join-Path $script:ShortPs1Root 'cli\WingetManifest.ps1')
             (Join-Path $script:ShortPs1Root 'SharedLibs\Install-DevDependencies.ps1')
         )
-        $paths += (Get-ChildItem -LiteralPath (Join-Path $script:ShortPs1Root 'Instellaator') -Filter '*.ps1' -File -ErrorAction SilentlyContinue).FullName
+        $paths += (Get-ChildItem -LiteralPath (Join-Path $script:ShortPs1Root 'Instellator') -Filter '*.ps1' -File -ErrorAction SilentlyContinue).FullName
         foreach ($p in $paths) {
             $tokens = $null
             $errs = $null
