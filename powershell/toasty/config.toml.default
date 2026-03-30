@@ -6,10 +6,24 @@
 quote_of_the_day = true
 update_check = true       # terse pwsh version hint (replaces the verbose built-in banner)
 typo_aliases = true
+# Extra shortcuts aligned with linux/photontoaster/aliases.toml (git gs/ga/…, v/mkd/cd.., tool shims).
+# Replaces built-in aliases gc/gp/gl (git) and ps (procs) when those tools are available; set false to keep stock pwsh.
+photon_aliases = true
 # Directory listing tool: "eza" | "lsd" | "ls" (or empty to skip)
 ls_tool = "eza"
 # Show file-type icons in ls/ll (requires a Nerd Font)
 ls_icons = true
+# Long listings (ls/ll/la): eza -h adds a header row (GNU ls -h means something else).
+ls_column_header = true
+# Extra mode column: eza -o / lsd --permission octal
+ls_octal_permissions = false
+# Human-oriented sizes: eza -b (binary KiB/MiB). lsd: --size short when true.
+ls_binary_sizes = false
+# Raw byte sizes: eza -B / lsd --size bytes (overrides ls_binary_sizes)
+ls_size_bytes = false
+# eza only: rewrite file:// OSC8 links to toasty-cd: so Ctrl+click can copy a cd line (off by default).
+# Set true and run powershell\toasty\shell\Register-ToastyCdUrlProtocol.ps1 once (per-user URL handler).
+ls_hyperlink_ctrl_click_cd = false
 # Replace cd with zoxide's z (frecency-based directory jumping)
 cd_to_z = true
 # Nerd Font to install and set in Windows Terminal (installer only).

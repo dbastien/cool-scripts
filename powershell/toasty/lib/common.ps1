@@ -54,6 +54,38 @@ function Format-ToastyOsc8 {
     return ($e + ']8;;' + $Uri + $bel + $Text + $e + ']8;;' + $bel)
 }
 
+function Convert-ToastyEzaLineHyperlinksToCdProtocol {
+  <#
+  .SYNOPSIS
+  Rewrites eza OSC 8 file:// links to toasty-cd: so Ctrl+click can run shell\Register-ToastyCdUrlProtocol.ps1 (copies cd line).
+  #>
+  [CmdletBinding()]
+  param([Parameter(ValueFromPipeline)][string]$Line)
+  process {
+    if ([string]::IsNullOrEmpty($Line)) { return $Line }
+    if ($Line.IndexOf(']8;;file://', [StringComparison]::Ordinal) -lt 0) { return $Line }
+    $esc = [char]27
+    $bel = [char]7
+    $pat = [regex]::Escape($esc) + ']8;;(file://[^\a]+)\a'
+    $rx = [regex]::new($pat)
+    $me = [System.Text.RegularExpressions.MatchEvaluator] {
+      param($m)
+      $uriText = $m.Groups[1].Value
+      try {
+        $u = [Uri]$uriText
+        $norm = $u.LocalPath
+      } catch {
+        return $m.Value
+      }
+      if ([string]::IsNullOrWhiteSpace($norm)) { return $m.Value }
+      if ($norm -match '^/[A-Za-z]:') { $norm = $norm.Substring(1) }
+      $encoded = [Uri]::EscapeDataString($norm)
+      $esc + ']8;;toasty-cd:' + $encoded + $bel
+    }
+    $rx.Replace($Line, $me)
+  }
+}
+
 function Format-ToastyPathLink {
     param(
         [Parameter(Mandatory)][string]$Path,

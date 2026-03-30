@@ -7,12 +7,7 @@ param(
   [switch]$Force,
   [switch]$MinimalExtern,
   [switch]$SkipFont,
-  [switch]$WhatIf,
-  [switch]$IncludeTheFuck,
-  [switch]$NerdFontFiraCode,
-  [switch]$GuiApps,
-  [switch]$FirefoxExtensions,
-  [switch]$ChromiumExtensions
+  [switch]$WhatIf
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,8 +32,6 @@ if (Test-Path -LiteralPath $externScript) {
     $externArgs['Extended'] = $true
   }
   if ($WhatIf) { $externArgs['WhatIf'] = $true }
-  if ($IncludeTheFuck) { $externArgs['IncludeTheFuck'] = $true }
-  if ($NerdFontFiraCode) { $externArgs['NerdFontFiraCode'] = $true }
   & $externScript @externArgs
   Write-Host ''
 }
@@ -72,12 +65,15 @@ if (Test-Path -LiteralPath $configDir) {
     } else {
       _msg "Junction exists but points elsewhere: $existingTarget" Warn
       _msg 'Re-run with -Force to replace.' Warn
+      exit 1
     }
   } elseif ($item.PSIsContainer) {
     _msg "$configDir exists and is a regular directory (not a junction)." Warn
     _msg 'Remove or rename it, then re-run.' Warn
+    exit 1
   } else {
     _msg "$configDir exists and is a file. Remove it, then re-run." Warn
+    exit 1
   }
 } else {
   New-Item -ItemType Junction -Path $configDir -Target $toastyRoot | Out-Null
@@ -152,22 +148,6 @@ if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
 $profileScript = Join-Path $toastyRoot 'shell\install-profile.ps1'
 if (Test-Path -LiteralPath $profileScript) {
   & $profileScript
-}
-
-# --- Instellator GUI flows (optional) ---
-$psPow = Split-Path -Parent $toastyRoot
-$instellator = Join-Path $psPow 'Instellator'
-if ($GuiApps) {
-  $s = Join-Path $instellator 'GuiApps.ps1'
-  if (Test-Path -LiteralPath $s) { & $s }
-}
-if ($FirefoxExtensions) {
-  $s = Join-Path $instellator 'FirefoxExt.ps1'
-  if (Test-Path -LiteralPath $s) { & $s }
-}
-if ($ChromiumExtensions) {
-  $s = Join-Path $instellator 'ChromiumExt.ps1'
-  if (Test-Path -LiteralPath $s) { & $s }
 }
 
 Write-Host ''

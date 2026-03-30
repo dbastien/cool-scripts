@@ -1,0 +1,21 @@
+Category,Name,PackageID,DefaultChecked,PackageManager,Notes,Tooltip,ExtractTo
+4X and strategy,0 A.D.,WildfireGames.0AD,FALSE,winget,Historical RTS; open source.,,
+4X and strategy,Endless Sky,EndlessSky.EndlessSky,FALSE,winget,Space trading and combat; open source.,,
+4X and strategy,Freeciv,FreeCiv.FreeCiv,FALSE,winget,Civilization-style 4X; open source.,,
+4X and strategy,FreeOrion,FreeOrion.FreeOrion,FALSE,winget,Space 4X; open source.,,
+4X and strategy,Widelands,WidelandsDevelopmentTeam.Widelands,FALSE,winget,Settlers-style economy RTS; open source.,,
+4X and strategy,Warzone 2100,Warzone2100Project.Warzone2100,FALSE,winget,RTS with campaign; open source.,,
+Roguelikes,FrogComposband,sulkasormi/frogcomposband|-win\.zip$,FALSE,ghzip,Latest full Windows archive from GitHub releases (not the exe-only zip).,,"%LOCALAPPDATA%\OSSGames\FrogComposband"
+Roguelikes,Cataclysm DDA,CleverRaven.CataclysmDarkDaysAhead,FALSE,winget,Post-apocalyptic roguelike; open source. Enable tilesets in game options after install.,,
+Roguelikes,Dungeon Crawl Stone Soup,DCSS.DungeonCrawlStoneSoup,FALSE,winget,Traditional roguelike; open source.,,
+Roguelikes,NetHack,Nethack.Nethack,FALSE,winget,Classic roguelike; open source.,,
+Sandbox and sim,Dwarf Fortress Classic,Bay12Games.DwarfFortressClassic,FALSE,winget,Free classic build from Bay 12 Games. Not open-source; license is shareware/free.,,
+Sandbox and sim,Luanti,LuantiTeam.Luanti,FALSE,winget,Voxel sandbox (successor to Minetest); open source.,,
+Sandbox and sim,OpenTTD,OpenTTD.OpenTTD,FALSE,winget,Transport tycoon clone; open source. Add OpenGFX/OpenSFX (and optionally OpenMSX) from the Graphics tab for full visuals and sound.,,
+Engine and RPG,OpenMW,OpenMW.OpenMW,FALSE,winget,Open Morrowind engine; open source. Needs original Morrowind data files.,,
+Racing and shooters,SuperTuxKart,SuperTuxKart.SuperTuxKart,FALSE,winget,Kart racer; open source.,,
+Racing and shooters,Xonotic,Xonotic.Xonotic,FALSE,winget,Arena FPS; open source.,,
+RTS classics,OpenRA (release),OpenRA.OpenRA.Release,FALSE,winget,Command & Conquer-style RTS reimplementation; open source.,,
+OpenTTD graphics (official bundles),OpenGFX 8,https://cdn.openttd.org/opengfx-releases/8.0/opengfx-8.0-all.zip,FALSE,zip,Base graphics set from openttd.org (install OpenTTD first recommended).,,"%USERPROFILE%\Documents\OpenTTD\baseset"
+OpenTTD graphics (official bundles),OpenSFX,https://cdn.openttd.org/opensfx-releases/1.0.3/opensfx-1.0.3-all.zip,FALSE,zip,Base sound set from openttd.org.,,"%USERPROFILE%\Documents\OpenTTD\baseset"
+OpenTTD graphics (official bundles),OpenMSX,https://cdn.openttd.org/openmsx-releases/0.4.2/openmsx-0.4.2-all.zip,FALSE,zip,Base music set from openttd.org.,,"%USERPROFILE%\Documents\OpenTTD\gm"

@@ -93,7 +93,26 @@ if ($alreadyInstalled) {
 
   foreach ($f in $ttfs) {
     $dest = Join-Path $userFontDir $f.Name
-    Copy-Item -LiteralPath $f.FullName -Destination $dest -Force
+    $skipCopy = $false
+    if (Test-Path -LiteralPath $dest) {
+      try {
+        $hSrc = (Get-FileHash -LiteralPath $f.FullName -Algorithm SHA256).Hash
+        $hDst = (Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash
+        if ($hSrc -eq $hDst) { $skipCopy = $true }
+      } catch { }
+    }
+    if (-not $skipCopy) {
+      try {
+        Copy-Item -LiteralPath $f.FullName -Destination $dest -Force -ErrorAction Stop
+      } catch {
+        if (Test-Path -LiteralPath $dest) {
+          _msg "Could not replace $($f.Name) (font file in use). Keeping existing copy." Warn
+        } else {
+          _msg "Could not install $($f.Name): $_" Warn
+          continue
+        }
+      }
+    }
     $regName = [System.IO.Path]::GetFileNameWithoutExtension($f.Name) + ' (TrueType)'
     New-ItemProperty -Path $regPath -Name $regName -Value $dest -PropertyType String -Force | Out-Null
   }

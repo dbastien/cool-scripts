@@ -1,7 +1,6 @@
 #requires -Version 7.2
 BeforeAll {
     $script:PtRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-    $script:PsPow = Split-Path -Parent $script:PtRoot
     $script:ToastyCli = Join-Path $script:PtRoot 'cli'
     $script:OldNoColor = $env:NO_COLOR
     $env:NO_COLOR = '1'
@@ -21,16 +20,18 @@ Describe 'Script syntax' {
             (Get-ChildItem -LiteralPath $script:ToastyCli -Filter '*.ps1' -File).FullName
             (Join-Path $script:PtRoot 'lib\common.ps1')
             (Join-Path $script:PtRoot 'lib\aliases.ps1')
+            (Join-Path $script:PtRoot 'lib\zoxide-toasty.ps1')
             (Join-Path $script:PtRoot 'install.ps1')
             (Join-Path $script:PtRoot 'shell\init.ps1')
             (Join-Path $script:PtRoot 'shell\quote.ps1')
             (Join-Path $script:PtRoot 'shell\install-profile.ps1')
+            (Join-Path $script:PtRoot 'shell\Invoke-ToastyCdUrl.ps1')
+            (Join-Path $script:PtRoot 'shell\Register-ToastyCdUrlProtocol.ps1')
             (Join-Path $script:PtRoot 'shell\prompt.ps1')
             (Join-Path $script:PtRoot 'winget\Install-Extern.ps1')
             (Join-Path $script:PtRoot 'winget\WingetManifest.ps1')
             (Join-Path $script:PtRoot 'dev\Install-DevDependencies.ps1')
         )
-        $paths += (Get-ChildItem -LiteralPath (Join-Path $script:PsPow 'Instellator') -Filter '*.ps1' -File -ErrorAction SilentlyContinue).FullName
         foreach ($p in $paths) {
             $tokens = $null
             $errs = $null

@@ -2,9 +2,7 @@ param(
   [ValidateSet('Winget')][string]$PackageManager = 'Winget',
   [switch]$Minimal,
   [switch]$Extended,
-  [switch]$WhatIf,
-  [switch]$IncludeTheFuck,
-  [switch]$NerdFontFiraCode
+  [switch]$WhatIf
 )
 
 $ErrorActionPreference = 'Stop'
@@ -158,47 +156,43 @@ function Invoke-NerdFontFiraCodeInstall {
     }
   }
   if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
-    Write-ToastyMsg 'Nerd Font Fira Code: install oh-my-posh (winget) or Chocolatey, then re-run with -NerdFontFiraCode, or use Instellator\GuiApps.ps1 (Fira Code Nerd Font).' Warn
+    Write-ToastyMsg 'Nerd Font Fira Code: install manually or run Toasty shell\Install-NerdFont.ps1.' Warn
   } else {
     Write-Warning 'Nerd Font Fira Code: could not install automatically.'
   }
 }
 
-if ($NerdFontFiraCode) {
-  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
-    Write-ToastyMsg 'Optional: Nerd Font Fira Code' Accent
-  } else {
-    Write-Host '=== Nerd Font Fira Code ==='
-  }
-  Invoke-NerdFontFiraCodeInstall
+if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+  Write-ToastyMsg 'Nerd Font Fira Code (oh-my-posh / Chocolatey fallback)' Accent
+} else {
+  Write-Host '=== Nerd Font Fira Code ==='
 }
+Invoke-NerdFontFiraCodeInstall
 
-if ($IncludeTheFuck) {
-  if ($WhatIf) {
+if ($WhatIf) {
+  if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+    Write-ToastyMsg 'WhatIf: pip install --user thefuck' Muted
+  }
+} else {
+  $pip = Get-Command pip -CommandType Application -ErrorAction SilentlyContinue
+  $py = Get-Command python -CommandType Application -ErrorAction SilentlyContinue
+  if ($pip) {
+    & $pip.Source install --user thefuck
     if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
-      Write-ToastyMsg 'WhatIf: pip install --user thefuck' Muted
+      Write-ToastyMsg 'thefuck: add to profile:  iex (& thefuck --alias 2>$null | Out-String)' Ok
+    } else {
+      Write-Host 'thefuck: add to profile:  iex (& thefuck --alias 2>$null | Out-String)'
+    }
+  } elseif ($py) {
+    & $py.Source -m pip install --user thefuck
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'thefuck: add to profile:  iex (& thefuck --alias 2>$null | Out-String)' Ok
     }
   } else {
-    $pip = Get-Command pip -CommandType Application -ErrorAction SilentlyContinue
-    $py = Get-Command python -CommandType Application -ErrorAction SilentlyContinue
-    if ($pip) {
-      & $pip.Source install --user thefuck
-      if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
-        Write-ToastyMsg 'thefuck: add to profile:  iex (& thefuck --alias 2>$null | Out-String)' Ok
-      } else {
-        Write-Host 'thefuck: add to profile:  iex (& thefuck --alias 2>$null | Out-String)'
-      }
-    } elseif ($py) {
-      & $py.Source -m pip install --user thefuck
-      if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
-        Write-ToastyMsg 'thefuck: add to profile:  iex (& thefuck --alias 2>$null | Out-String)' Ok
-      }
+    if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
+      Write-ToastyMsg 'thefuck: skipped (no pip/python on PATH)' Warn
     } else {
-      if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
-        Write-ToastyMsg 'thefuck: skipped (no pip/python on PATH)' Warn
-      } else {
-        Write-Warning 'thefuck: skipped (no pip/python on PATH)'
-      }
+      Write-Warning 'thefuck: skipped (no pip/python on PATH)'
     }
   }
 }

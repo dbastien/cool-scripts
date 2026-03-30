@@ -345,6 +345,7 @@ function global:prompt {
 
   $showR = (Get-ToastyCfg 'prompt.show_rprompt' 'true') -eq 'true'
 
+  $promptSuffix = "${e}[38;2;$($P.Violet)m>${e}[0m "
   if (-not $script:ToastyPromptUseColor) {
     $plainL = ($leftList | ForEach-Object { _ToastyStripAnsi $_.Display }) -join ' '
     if ($showR -and $rightList.Count -gt 0) {
@@ -361,25 +362,29 @@ function global:prompt {
     } else {
       Write-Host $plainL -NoNewline
     }
-    return '> '
-  }
-
-  $L = Format-ToastyRender -Segs $leftList -Theme $theme
-  $lVisible = (_ToastyStripAnsi $L).Length
-  if ($showR -and $rightList.Count -gt 0) {
-    $R = Format-ToastyRender -Segs $rightList -Theme $theme
-    $rVisible = (_ToastyStripAnsi $R).Length
-    $cols = 80
-    try { $cols = $Host.UI.RawUI.WindowSize.Width } catch { }
-    $pos = $cols - $rVisible
-    if ($pos -gt ($lVisible + 4)) {
-      $lCol = $lVisible + 1
-      Write-Host "${L}${e}[${pos}G${R}${e}[0m${e}[${lCol}G" -NoNewline
+    $promptSuffix = '> '
+  } else {
+    $L = Format-ToastyRender -Segs $leftList -Theme $theme
+    $lVisible = (_ToastyStripAnsi $L).Length
+    if ($showR -and $rightList.Count -gt 0) {
+      $R = Format-ToastyRender -Segs $rightList -Theme $theme
+      $rVisible = (_ToastyStripAnsi $R).Length
+      $cols = 80
+      try { $cols = $Host.UI.RawUI.WindowSize.Width } catch { }
+      $pos = $cols - $rVisible
+      if ($pos -gt ($lVisible + 4)) {
+        $lCol = $lVisible + 1
+        Write-Host "${L}${e}[${pos}G${R}${e}[0m${e}[${lCol}G" -NoNewline
+      } else {
+        Write-Host "${L}${e}[0m" -NoNewline
+      }
     } else {
       Write-Host "${L}${e}[0m" -NoNewline
     }
-  } else {
-    Write-Host "${L}${e}[0m" -NoNewline
   }
-  return "${e}[38;2;$($P.Violet)m>${e}[0m "
+
+  # zoxide records cwd after each directory change; its own prompt wrapper is lost if this file is re-sourced (reload).
+  if (Get-Command __zoxide_hook -ErrorAction SilentlyContinue) { $null = __zoxide_hook }
+
+  return $promptSuffix
 }

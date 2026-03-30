@@ -9,7 +9,7 @@
 # - Not in this list (install separately or WSL-only): git, curl, unzip, zip, build-essential, pkg-config — typical
 #   Windows dev boxes already have git/curl; use Visual Studio / Build Tools for compilers if needed.
 # - WSL / apt-only in PT script (no winget row here): wslu, zsh, command-not-found, zsh-autosuggestions,
-#   zsh-syntax-highlighting, zsh-history-substring-search. thefuck: optional via Install-Extern.ps1 -IncludeTheFuck.
+#   zsh-syntax-highlighting, zsh-history-substring-search. thefuck: pip install attempted every Install-Extern run when Python is available.
 #
 # Tiers: Core = smaller subset; Extended = rest. Default = Core + Extended (PT-style install-all); -MinimalExtern uses Core only.
 

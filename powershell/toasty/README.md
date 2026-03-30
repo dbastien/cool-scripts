@@ -32,51 +32,10 @@ pwsh -File .\install.ps1
 
 Options:
 
-- **Default** — full winget manifest (Core + Extended) then Toasty junction.
-- `-MinimalExtern` — Core winget set only (rg, bat, fd, eza, fzf, zoxide, jq).
-- `-IncludeTheFuck` / `-NerdFontFiraCode` — forwarded to `Install-Extern.ps1`.
+- **Default** — full winget manifest (Core + Extended), **thefuck** via pip when Python is available, Fira Code Nerd Font fallback (oh-my-posh / Chocolatey), then Toasty junction.
+- `-MinimalExtern` — Core winget packages only; thefuck + Fira fallback still run afterward.
 - `-WhatIf` — print winget actions only; **does not** finish Toasty junction/PATH/profile steps (re-run without `-WhatIf`).
 - `-Force` — re-create junction if target changed.
-- `-GuiApps` — after Toasty install, run `Instellator\GuiApps.ps1` (desktop apps picker).
-- `-FirefoxExtensions` — download Firefox `.xpi` extensions via `Instellator\FirefoxExt.ps1`.
-- `-ChromiumExtensions` — open Chrome/Edge store pages from `Instellator\Chromium-extensions.csv`.
-
-## Instellator (desktop apps + browser extensions)
-
-`powershell/Instellator/instellator.ps1` opens **GuiApps.ps1** (winget + Chocolatey desktop picker from `GUI-apps.csv`) by default. It does **not** install winget CLI tools — use **`install.ps1`** (or `winget/Install-Extern.ps1`) for those. It does **not** create the Toasty junction; run `install.ps1` for junction, PATH, and profile.
-
-```powershell
-pwsh -File .\powershell\Instellator\instellator.ps1
-```
-
-Typical order: **Toasty** `install.ps1` for CLIs + shell hub, then **Instellator** for desktop apps (or either order if you only need one side).
-
-Extra switches: `-SkipGuiApps`, `-GuiAppsAuto`, `-FirefoxExtensions` / `-FirefoxExtensionsAuto`, `-ChromiumExtensions` / `-ChromiumExtensionsAuto`, `-WhatIf`.
-
-## Instellator — desktop apps
-
-`Instellator\GuiApps.ps1` reads `GUI-apps.csv` (columns: Category, Name, PackageID, DefaultChecked, PackageManager, Notes; optional Tooltip). Categories appear as **tabs**. For an elevated Explorer-friendly entry (bootstraps PS 7 if needed), use `Instellator\GuiAppsLauncher.ps1`.
-
-```powershell
-..\Instellator\GuiApps.ps1
-# or: ..\Instellator\GuiApps.ps1 -AutoDefault
-```
-
-## Instellator — Firefox extension downloads
-
-`Instellator\FirefoxExt.ps1` reads `Firefox-extensions.csv` and saves `.xpi` files under `firefox-extensions\`.
-
-```powershell
-..\Instellator\FirefoxExt.ps1
-```
-
-## Instellator — Chrome / Edge extension store links
-
-`Instellator\ChromiumExt.ps1` reads `Chromium-extensions.csv` and opens official store pages in Chrome and Edge.
-
-```powershell
-..\Instellator\ChromiumExt.ps1
-```
 
 ## Profile
 
@@ -91,7 +50,7 @@ Disable individual features via `config.toml` or env vars (`TOASTY_NO_PROMPT`, `
 
 Edit `~/.config/toasty/config.toml` (created from `config.toml.default` on first install):
 
-- `[general]` — `quote_of_the_day`, `typo_aliases`, `ls_tool`, `cd_to_z`
+- `[general]` — `quote_of_the_day`, `typo_aliases`, `photon_aliases` (Photon Toaster–style git/tools; replaces `gc`/`gp`/`gl`/`ps` when git/procs are used), `ls_tool`, `cd_to_z`
 - `[prompt]` — theme, segments, icons, duration threshold
 - `[colors]` — preset scheme or individual R;G;B overrides
 - `[debug]` — `profile_startup` timing
@@ -119,9 +78,8 @@ Loaded automatically by `shell/init.ps1`. Disable with `$env:TOASTY_NO_QUOTE = '
 ## Native CLIs only
 
 ```powershell
-.\winget\Install-Extern.ps1                # full set (default)
-.\winget\Install-Extern.ps1 -Minimal       # Core only
-.\winget\Install-Extern.ps1 -NerdFontFiraCode   # optional: install Fira Code Nerd Font
+.\winget\Install-Extern.ps1           # full winget set + thefuck + Fira fallback
+.\winget\Install-Extern.ps1 -Minimal  # Core winget only + thefuck + Fira fallback
 ```
 
 After install, open a **new** terminal so PATH picks up winget shims. For **zoxide** in PowerShell:
