@@ -1,6 +1,5 @@
-# Toasty installer — links this directory into ~/.config/toasty,
-# adds cli/ to PATH, seeds config.toml and quotes, patches $PROFILE,
-# and optionally runs winget CLI installs.
+# Toasty installer — runs winget\Install-Extern.ps1 (native CLIs), links this directory into ~/.config/toasty,
+# adds cli/ to PATH, seeds config.toml and quotes, patches $PROFILE.
 #
 # Usage:  pwsh -File .\powershell\toasty\install.ps1
 
@@ -9,6 +8,8 @@ param(
   [switch]$MinimalExtern,
   [switch]$SkipFont,
   [switch]$WhatIf,
+  [switch]$IncludeTheFuck,
+  [switch]$NerdFontFiraCode,
   [switch]$GuiApps,
   [switch]$FirefoxExtensions,
   [switch]$ChromiumExtensions
@@ -26,12 +27,18 @@ function _msg([string]$m, [string]$l = 'Info') {
   else { Write-Host $m }
 }
 
-# --- Winget CLI installs (optional) ---
+# --- Winget CLI installs ---
 $externScript = Join-Path $toastyRoot 'winget\Install-Extern.ps1'
 if (Test-Path -LiteralPath $externScript) {
   $externArgs = @{}
-  if ($MinimalExtern) { $externArgs['MinimalExtern'] = $true }
+  if ($MinimalExtern) {
+    $externArgs['Minimal'] = $true
+  } else {
+    $externArgs['Extended'] = $true
+  }
   if ($WhatIf) { $externArgs['WhatIf'] = $true }
+  if ($IncludeTheFuck) { $externArgs['IncludeTheFuck'] = $true }
+  if ($NerdFontFiraCode) { $externArgs['NerdFontFiraCode'] = $true }
   & $externScript @externArgs
   Write-Host ''
 }

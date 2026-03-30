@@ -34,21 +34,24 @@ Options:
 
 - **Default** — full winget manifest (Core + Extended) then Toasty junction.
 - `-MinimalExtern` — Core winget set only (rg, bat, fd, eza, fzf, zoxide, jq).
-- `-WhatIf` — print winget actions only; **does not** install Toasty or run Instellator GUI helpers (re-run without `-WhatIf`).
+- `-IncludeTheFuck` / `-NerdFontFiraCode` — forwarded to `Install-Extern.ps1`.
+- `-WhatIf` — print winget actions only; **does not** finish Toasty junction/PATH/profile steps (re-run without `-WhatIf`).
 - `-Force` — re-create junction if target changed.
 - `-GuiApps` — after Toasty install, run `Instellator\GuiApps.ps1` (desktop apps picker).
 - `-FirefoxExtensions` — download Firefox `.xpi` extensions via `Instellator\FirefoxExt.ps1`.
 - `-ChromiumExtensions` — open Chrome/Edge store pages from `Instellator\Chromium-extensions.csv`.
 
-## Full Windows setup (Instellator)
+## Instellator (desktop apps + browser extensions)
 
-For **winget CLIs + Toasty junction + optional desktop apps / extensions** in one go, use `powershell/Instellator/instellator.ps1`:
+`powershell/Instellator/instellator.ps1` opens **GuiApps.ps1** (winget + Chocolatey desktop picker from `GUI-apps.csv`) by default. It does **not** install winget CLI tools — use **`install.ps1`** (or `winget/Install-Extern.ps1`) for those. It does **not** create the Toasty junction; run `install.ps1` for junction, PATH, and profile.
 
 ```powershell
 pwsh -File .\powershell\Instellator\instellator.ps1
 ```
 
-Extra switches: `-GuiApps` / `-GuiAppsAuto`, `-FirefoxExtensions` / `-FirefoxExtensionsAuto`, `-ChromiumExtensions` / `-ChromiumExtensionsAuto`, `-IncludeTheFuck`, `-NerdFontFiraCode`.
+Typical order: **Toasty** `install.ps1` for CLIs + shell hub, then **Instellator** for desktop apps (or either order if you only need one side).
+
+Extra switches: `-SkipGuiApps`, `-GuiAppsAuto`, `-FirefoxExtensions` / `-FirefoxExtensionsAuto`, `-ChromiumExtensions` / `-ChromiumExtensionsAuto`, `-WhatIf`.
 
 ## Instellator — desktop apps
 
@@ -135,7 +138,7 @@ Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
 - sed     (regex replace; optional `-i` to edit file in place)
 - sortu   (sort unique)
-- jq      (JSON pretty print / select properties; use winget `jq` for full jq if you ran `.\winget\Install-Extern.ps1` or `Instellator\instellator.ps1`)
+- jq      (JSON pretty print / select properties; use winget `jq` for full jq if you ran `.\winget\Install-Extern.ps1` or `.\install.ps1`)
 - psgrep  (search processes)
 - killp   (kill processes by pattern; supports -WhatIf / -Confirm)
 - realpath, lns (symlink), tee, env, mkcd

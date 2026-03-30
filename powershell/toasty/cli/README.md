@@ -5,7 +5,7 @@ Single folder of small CLI helpers: Unix-style tools plus Windows-oriented short
 ## Install / orchestration
 
 - **Toasty junction** (this folder on PATH): from `powershell\toasty` run `.\install.ps1`.
-- **Native CLIs (winget) + this folder**: run `..\winget\Install-Extern.ps1` or `powershell\Instellator\instellator.ps1` (full setup).
+- **Native CLIs (winget)**: run `..\winget\Install-Extern.ps1` or `..\install.ps1` (full Toasty setup includes CLIs). **Desktop app picker**: `powershell\Instellator\instellator.ps1` (GuiApps; not CLI installs).
 
 Shared styling lives in `..\lib\common.ps1` (dot-sourced by each tool).
 

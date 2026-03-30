@@ -1,11 +1,11 @@
 # Winget package IDs for common dev CLIs (curated manifest).
-# Dot-sourced by winget\Install-Extern.ps1 and Instellator\instellator.ps1.
+# Dot-sourced by winget\Install-Extern.ps1 (run from toasty\install.ps1 or directly).
 #
 # Mapping notes (Ubuntu PT `packages=(...)` vs this manifest):
 # - ncdu (apt) -> gdu (dundee.gdu); same role: disk usage UI.
 # - fd-find (apt) -> sharkdp.fd (probe: fd).
 # - Covered here (winget): ripgrep, bat, fd, eza, fzf, zoxide, jq, delta, btop, fastfetch, duf, dust, procs, micro,
-#   tldr, tree, wget, less, gdu.
+#   tldr, tree, wget, less, gdu, cmake.
 # - Not in this list (install separately or WSL-only): git, curl, unzip, zip, build-essential, pkg-config — typical
 #   Windows dev boxes already have git/curl; use Visual Studio / Build Tools for compilers if needed.
 # - WSL / apt-only in PT script (no winget row here): wslu, zsh, command-not-found, zsh-autosuggestions,
@@ -33,4 +33,5 @@ $ToastyWingetPackages = @(
   @{ Id = 'JernejSimoncic.Wget'; Probe = 'wget'; ExcludeScript = 'wget.ps1'; Tier = 'Extended' }
   @{ Id = 'jftuga.less'; Probe = 'less'; ExcludeScript = $null; Tier = 'Extended' }
   @{ Id = 'dundee.gdu'; Probe = 'gdu'; ExcludeScript = $null; Tier = 'Extended' }
+  @{ Id = 'Kitware.CMake'; Probe = 'cmake'; ExcludeScript = $null; Tier = 'Extended' }
 )
