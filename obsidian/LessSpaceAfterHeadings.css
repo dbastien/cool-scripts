@@ -1,0 +1,54 @@
+/* Adjust margin for all headings */
+h1, h2, h3, h4, h5, h6,
+.markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3,
+.markdown-rendered h4, .markdown-rendered h5, .markdown-rendered h6 {
+    margin-bottom: 2px !important; /* Reduce space after headings */
+}
+
+/* Adjust margin for paragraphs */
+.markdown-rendered p {
+    margin-top: 6px !important; /* Reduce space above paragraphs */
+	margin-bottom: 0px !important; /* Reduce space above paragraphs */
+}
+
+/* General list adjustments */
+.markdown-rendered ul > li, .markdown-rendered ol > li,
+.markdown-rendered ul, .markdown-rendered ol,
+.mod-cm6 .HyperMD-list-line.cm-line {
+    margin-top: 2px !important;
+    margin-block-start: 2px !important;
+    margin-block-end: 2px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+
+.markdown-rendered h1 + ul, .markdown-rendered h1 + ol,
+.markdown-rendered h2 + ul, .markdown-rendered h2 + ol,
+.markdown-rendered h3 + ul, .markdown-rendered h3 + ol,
+.markdown-rendered h4 + ul, .markdown-rendered h4 + ol,
+.markdown-rendered h5 + ul, .markdown-rendered h5 + ol,
+.markdown-rendered h6 + ul, .markdown-rendered h6 + ol {
+    margin-top: 0px !important; /* Reduce space between heading and list */
+    padding-top: 0 !important;  /* Prevent extra padding above list */
+	margin-block-start: 2px !important;
+}
+
+/* Compact nested lists */
+.markdown-rendered ul ul, .markdown-rendered ol ul,
+.markdown-rendered ul ol, .markdown-rendered ol ol {
+    margin-block-start: 2px !important; /* Compact space above nested lists */
+    margin-block-end: 2px !important; /* Compact space below nested lists */
+}
+
+/* Adjust margin for adjacent headings */
+.markdown-rendered h1 + h2, .markdown-rendered h1 + h3,
+.markdown-rendered h1 + h4, .markdown-rendered h1 + h5,
+.markdown-rendered h1 + h6, .markdown-rendered h2 + h3,
+.markdown-rendered h2 + h4, .markdown-rendered h2 + h5,
+.markdown-rendered h2 + h6, .markdown-rendered h3 + h4,
+.markdown-rendered h3 + h5, .markdown-rendered h3 + h6,
+.markdown-rendered h4 + h5, .markdown-rendered h4 + h6,
+.markdown-rendered h5 + h6 {
+    margin-top: 0 !important;    /* Eliminate extra space between adjacent headings */
+    margin-bottom: 0 !important; /* Tighten up spacing */
+}

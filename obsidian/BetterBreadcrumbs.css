@@ -1,0 +1,8 @@
+.view-header-title-container.mod-at-start.mod-fade {
+    opacity: 1 !important;
+    display: flex !important;
+}
+
+.view-header-title-container.mod-at-start.mod-fade:hover {
+    opacity: 1 !important;
+}

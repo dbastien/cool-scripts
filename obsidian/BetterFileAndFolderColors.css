@@ -1,0 +1,25 @@
+/* Active State - Background */
+body.minimal-theme .nav-file-title.is-active,
+body.minimal-theme .nav-folder-title.is-active {
+  background-color: hsla(210, 100%, 50%, 0.15) !important;
+  border-radius: 8px;
+}
+
+/* Active State - Text */
+body.minimal-theme .nav-file-title.is-active .nav-file-title-content,
+body.minimal-theme .nav-folder-title.is-active .nav-folder-title-content {
+  color: hsla(0, 0%, 87%, 1) !important;
+}
+
+/* Hover State - Background */
+body.minimal-theme .nav-file-title:hover,
+body.minimal-theme .nav-folder-title:hover {
+  background-color: hsla(150, 100%, 50%, 0.15) !important;
+  border-radius: 8px;
+}
+
+/* Hover State - Text */
+body.minimal-theme .nav-file-title:hover .nav-file-title-content,
+body.minimal-theme .nav-folder-title:hover .nav-folder-title-content {
+  color: hsla(0, 0%, 87%, 1) !important;
+}

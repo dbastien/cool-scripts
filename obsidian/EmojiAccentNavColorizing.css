@@ -1,0 +1,101 @@
+// === Emoji → accent (RGB) for Obsidian nav, scoped for .minimal-theme ===
+(() => {
+  // compact palette as RGB strings
+  const P = {
+    red:    '255, 71, 76',
+    orange: '255, 153, 51',
+    yellow: '255, 214, 51',
+    green:  '72, 199, 116',
+    blue:   '64, 156, 255',
+    purple: '175, 103, 234',
+    brown:  '141, 110, 99',
+    gray:   '128, 128, 128',
+    black:  '20, 20, 20',
+    white:  '245, 245, 245',
+  };
+
+  // buckets: many emojis map to same color (keep this short; extend if you want)
+  const BUCKETS = [
+    { c: P.red,    e: Array.from('❤️💔❣️💥💢🔴🍎🍓🌶️🍉🍒🎈🚒🚗📕🔥') },
+    { c: P.orange, e: Array.from('🟠🦊🍊🥕🦁🏀📙🍂🌈') },
+    { c: P.yellow, e: [
+      ...Array.from('😀😃😄😁😆😅😂🙂😉😊😇😍😘😗😙😚🤗🤩'),
+      ...Array.from('⭐✨⚡☀️🌟🔆🟡🍌🌕🌻🍍🥇🚕📒')
+    ]},
+    { c: P.green,  e: [ ...Array.from('✅☘️🍀🌿🌱🌲🌳🥦🥬🥑🍏🟢🐢🐸') ] },
+    { c: P.blue,   e: [ ...Array.from('🔵💙💧🌊🌧️☔❄️🧊🐬🐳🐟📘💻🖥️📱🚀✈️💎') ] },
+    { c: P.purple, e: Array.from('🟣💜🍇🔮👾👽🧚‍♀️🎆🎇🎉') },
+    { c: P.brown,  e: Array.from('🟤🪵🪑🥔🍫🥐🍞🥖🐻🦬') },
+    { c: P.gray,   e: Array.from('⚙️🔩📎📏📐🖊️✏️') },
+    { c: P.black,  e: Array.from('🖤⚫🎧🎮🕶️🦇') },
+    { c: P.white,  e: Array.from('🤍⚪🕊️❄️📄💭') },
+  ];
+  const MAP = new Map();
+  for (const {c,e} of BUCKETS) for (const t of e) MAP.set(t, c);
+
+  const FALLBACK = P.blue;
+  const EP = /\p{Extended_Pictographic}/u;
+  const seg = ('Segmenter' in Intl) ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+
+  const firstEmoji = (s) => {
+    if (!s) return null;
+    if (seg) for (const {segment} of seg.segment(s)) if (EP.test(segment)) return segment;
+    const m = s.match(EP); return m ? m[0] : null;
+  };
+
+  const colorFor = (g) => {
+    if (!g) return null;
+    if (MAP.has(g)) return MAP.get(g);
+    // quick shape heuristics ↓
+    if (/🔴|🟥|♥️/.test(g)) return P.red;
+    if (/🟠|🟧/.test(g))    return P.orange;
+    if (/🟡|🟨|⭐|✨|⚡/.test(g)) return P.yellow;
+    if (/🟢|🟩|✅/.test(g)) return P.green;
+    if (/🔵|🟦|💧|❄️/.test(g)) return P.blue;
+    if (/🟣|🟪|💜/.test(g)) return P.purple;
+    if (/🟤|🟫/.test(g))    return P.brown;
+    if (/⚫|⬛|🖤/.test(g))  return P.black;
+    if (/⚪|⬜|🤍/.test(g))  return P.white;
+    return FALLBACK;
+  };
+
+  // your exact title selectors (keep minimal-theme scope in CSS, not here)
+  const ITEM_SEL = '.nav-file-title, .nav-folder-title';
+
+  const labelEl = (el) =>
+    el.querySelector('.nav-file-title-content, .nav-folder-title-content') || el;
+
+  const apply = (el) => {
+    const t = (labelEl(el).textContent || '').trim();
+    const g = firstEmoji(t);
+    const rgb = colorFor(g);
+    if (!rgb) return;
+    el.style.setProperty('--emoji-accent-rgb', rgb);
+    // convenience full color var if you ever want it:
+    el.style.setProperty('--emoji-accent', `rgb(${rgb})`);
+  };
+
+  const scan = (root = document) =>
+    root.querySelectorAll(ITEM_SEL).forEach(apply);
+
+  const ready = (fn) => {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') fn();
+    else document.addEventListener('DOMContentLoaded', fn, { once: true });
+  };
+
+  ready(() => {
+    scan();
+    new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'childList') m.addedNodes.forEach(n => n.nodeType === 1 && scan(n));
+        if (m.type === 'characterData') {
+          const el = m.target.parentElement;
+          if (el?.closest) {
+            const host = el.closest(ITEM_SEL);
+            if (host) apply(host);
+          }
+        }
+      }
+    }).observe(document.body, { subtree: true, childList: true, characterData: true });
+  });
+})();

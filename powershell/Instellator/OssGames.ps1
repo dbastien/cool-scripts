@@ -4,7 +4,9 @@
   WPF picker for open-source and free games (winget, GitHub release zips, optional official data bundles).
 
 .DESCRIPTION
-  Catalog CSV (default OSS-games.csv next to this script). PackageManager values:
+  Catalog CSV (default OSS-games.csv next to this script): Category, Subcategory (optional), Name, PackageID, DefaultChecked, PackageManager, Notes, Tooltip, ExtractTo.
+  If any row in a category has a non-empty Subcategory, that tab uses GroupBoxes; blank Subcategory rows are grouped under "Other".
+  PackageManager values:
   winget | choco | ghzip | zip
   - ghzip: PackageID is owner/repo|regex (regex selects release asset name; default (?i)-win\.zip$ )
   - zip: PackageID is https URL; ExtractTo is required (%ENV%\... paths expanded)
@@ -20,7 +22,8 @@ param(
   [string]$CsvPath = '',
   [switch]$AutoDefault,
   [switch]$WhatIf,
-  [switch]$SkipChocolateyBootstrap
+  [switch]$SkipChocolateyBootstrap,
+  [switch]$UpgradeChocolatey
 )
 
 $ErrorActionPreference = 'Stop'
@@ -61,9 +64,14 @@ function Get-SoftwareFromCSV {
   return $categories
 }
 
+function Test-InstellatorWingetAvailable {
+  $wingetExe = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\winget.exe'
+  if (Test-Path -LiteralPath $wingetExe) { return $true }
+  return $null -ne (Get-Command winget -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1)
+}
+
 function Ensure-Winget {
-  $wg = Get-Command winget -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-  if (-not $wg) {
+  if (-not (Test-InstellatorWingetAvailable)) {
     Write-OssGamesMsg 'winget not found. Install App Installer from the Microsoft Store, then re-run.' Err
     exit 1
   }
@@ -75,11 +83,13 @@ function Ensure-Chocolatey {
     return
   }
   if (Get-Command choco -ErrorAction SilentlyContinue) {
-    Write-OssGamesMsg 'Chocolatey present; upgrading chocolatey package.' Muted
-    if (-not $WhatIf) {
-      $p = Start-Process -FilePath 'choco' -ArgumentList @('upgrade', 'chocolatey', '-y') -Wait -PassThru -NoNewWindow
-      if ($p.ExitCode -ne 0) {
-        Write-OssGamesMsg "choco upgrade chocolatey exit $($p.ExitCode)" Warn
+    if ($UpgradeChocolatey) {
+      Write-OssGamesMsg 'Chocolatey present; upgrading chocolatey package (-UpgradeChocolatey).' Muted
+      if (-not $WhatIf) {
+        $p = Start-Process -FilePath 'choco' -ArgumentList @('upgrade', 'chocolatey', '-r', '-y') -Wait -PassThru -NoNewWindow
+        if ($p.ExitCode -ne 0) {
+          Write-OssGamesMsg "choco upgrade chocolatey exit $($p.ExitCode)" Warn
+        }
       }
     }
     return
@@ -288,6 +298,66 @@ function Get-CheckboxCsvToolTip {
   return $tip
 }
 
+function Get-OssGamesCsvSubcategoryValue {
+  param($Row)
+  $p = $Row.PSObject.Properties['Subcategory']
+  if ($null -eq $p -or $null -eq $p.Value) { return '' }
+  return [string]$p.Value.Trim()
+}
+
+function Get-OssGamesCategorySubgroupModel {
+  param([System.Collections.Generic.List[object]]$Rows)
+  $anySub = $false
+  foreach ($r in $Rows) {
+    if (Get-OssGamesCsvSubcategoryValue -Row $r) { $anySub = $true; break }
+  }
+  if (-not $anySub) {
+    return [pscustomobject]@{ Flat = $true; Groups = $null }
+  }
+  $groups = [ordered]@{}
+  foreach ($r in $Rows) {
+    $sk = Get-OssGamesCsvSubcategoryValue -Row $r
+    if (-not $sk) { $sk = 'Other' }
+    if (-not $groups.Contains($sk)) {
+      $groups[$sk] = [System.Collections.Generic.List[object]]::new()
+    }
+    [void]$groups[$sk].Add($r)
+  }
+  return [pscustomobject]@{ Flat = $false; Groups = $groups }
+}
+
+function Add-OssGamesCheckBoxesToGrid {
+  param(
+    [System.Collections.IEnumerable]$SoftwareRows,
+    [Windows.Controls.Grid]$TargetGrid,
+    [int]$ColumnCount,
+    [System.Collections.Generic.List[System.Windows.Controls.CheckBox]]$AllCheckBoxes
+  )
+  $counter = 0
+  foreach ($software in $SoftwareRows) {
+    $checkBox = New-Object Windows.Controls.CheckBox
+    $checkBox.Content = $software.Name
+    $checkBox.Tag = (Get-CheckBoxTag -Row $software)
+    $checkBox.Margin = '2'
+    $parsed = $false
+    [void][bool]::TryParse($software.DefaultChecked, [ref]$parsed)
+    $checkBox.IsChecked = $parsed
+    $tt = Get-CheckboxCsvToolTip -Row $software
+    if (-not [string]::IsNullOrWhiteSpace($tt)) { $checkBox.ToolTip = $tt }
+
+    $column = $counter % $ColumnCount
+    $row = [math]::Floor($counter / $ColumnCount)
+    while ($TargetGrid.RowDefinitions.Count -le $row) {
+      $null = $TargetGrid.RowDefinitions.Add((New-Object Windows.Controls.RowDefinition))
+    }
+    [Windows.Controls.Grid]::SetColumn($checkBox, $column)
+    [Windows.Controls.Grid]::SetRow($checkBox, $row)
+    $null = $TargetGrid.Children.Add($checkBox)
+    [void]$AllCheckBoxes.Add($checkBox)
+    $counter++
+  }
+}
+
 function Resolve-RowFromTag {
   param([string]$Tag, [System.Collections.Specialized.OrderedDictionary]$Categories)
   $parts = $Tag -split '\|', 3
@@ -302,6 +372,43 @@ function Resolve-RowFromTag {
     }
   }
   return $null
+}
+
+function New-OssGamesCategoryScrollViewer {
+  param(
+    [Parameter(Mandatory)][string]$CategoryKey,
+    [Parameter(Mandatory)][System.Collections.Specialized.OrderedDictionary]$Categories,
+    [Parameter(Mandatory)][AllowEmptyCollection()][System.Collections.Generic.List[System.Windows.Controls.CheckBox]]$AllCheckBoxes
+  )
+
+  $list = $Categories[$CategoryKey]
+  $model = Get-OssGamesCategorySubgroupModel -Rows $list
+  $scrollViewer = New-Object Windows.Controls.ScrollViewer
+  $scrollViewer.VerticalScrollBarVisibility = 'Auto'
+
+  if ($model.Flat) {
+    $groupBoxGrid = New-Object Windows.Controls.Grid
+    1..3 | ForEach-Object { $null = $groupBoxGrid.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
+    Add-OssGamesCheckBoxesToGrid -SoftwareRows $list -TargetGrid $groupBoxGrid -ColumnCount 3 -AllCheckBoxes $AllCheckBoxes
+    $scrollViewer.Content = $groupBoxGrid
+  } else {
+    $outer = New-Object Windows.Controls.StackPanel
+    $outer.Orientation = 'Vertical'
+    $firstGroup = $true
+    foreach ($subName in $model.Groups.Keys) {
+      $gb = New-Object Windows.Controls.GroupBox
+      $gb.Header = [string]$subName
+      $gb.Margin = if ($firstGroup) { '0,2,0,7' } else { '0,7,0,7' }
+      $firstGroup = $false
+      $inner = New-Object Windows.Controls.Grid
+      1..3 | ForEach-Object { $null = $inner.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
+      Add-OssGamesCheckBoxesToGrid -SoftwareRows $model.Groups[$subName] -TargetGrid $inner -ColumnCount 3 -AllCheckBoxes $AllCheckBoxes
+      $gb.Content = $inner
+      [void]$outer.Children.Add($gb)
+    }
+    $scrollViewer.Content = $outer
+  }
+  return $scrollViewer
 }
 
 function Show-CategoryDialog {
@@ -325,44 +432,48 @@ function Show-CategoryDialog {
   $tabControl.Margin = '5'
   [Windows.Controls.Grid]::SetRow($tabControl, 0)
 
+  $dialogCtx = [pscustomobject]@{
+    Categories           = $Categories
+    AllCheckBoxes        = $allCheckBoxes
+    TabControl           = $tabControl
+    Window               = $window
+    BuildCategoryScroll  = (Get-Command New-OssGamesCategoryScrollViewer -CommandType Function)
+    InstallSelectedRows  = (Get-Command Install-SelectedRows -CommandType Function)
+    ResolveRowFromTag    = (Get-Command Resolve-RowFromTag -CommandType Function)
+  }
+
+  $populateOssTab = {
+    param([Windows.Controls.TabItem]$TabItem)
+    if ($null -eq $TabItem) { return }
+    $meta = $TabItem.Tag
+    if ($null -eq $meta -or $meta.Populated) { return }
+    $c = $dialogCtx
+    $TabItem.Content = & $c.BuildCategoryScroll -CategoryKey $meta.Category -Categories $c.Categories -AllCheckBoxes $c.AllCheckBoxes
+    $meta.Populated = $true
+  }.GetNewClosure()
+
   foreach ($category in $Categories.Keys) {
     $tabItem = New-Object Windows.Controls.TabItem
     $tabItem.Header = [string]$category
-
-    $scrollViewer = New-Object Windows.Controls.ScrollViewer
-    $scrollViewer.VerticalScrollBarVisibility = 'Auto'
-
-    $groupBoxGrid = New-Object Windows.Controls.Grid
-    1..3 | ForEach-Object { $null = $groupBoxGrid.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
-
-    $list = $Categories[$category]
-    $counter = 0
-    foreach ($software in $list) {
-      $checkBox = New-Object Windows.Controls.CheckBox
-      $checkBox.Content = $software.Name
-      $checkBox.Tag = (Get-CheckBoxTag -Row $software)
-      $checkBox.Margin = '2'
-      $parsed = $false
-      [void][bool]::TryParse($software.DefaultChecked, [ref]$parsed)
-      $checkBox.IsChecked = $parsed
-      $tt = Get-CheckboxCsvToolTip -Row $software
-      if (-not [string]::IsNullOrWhiteSpace($tt)) { $checkBox.ToolTip = $tt }
-
-      $column = $counter % 3
-      $row = [math]::Floor($counter / 3)
-      while ($groupBoxGrid.RowDefinitions.Count -le $row) {
-        $null = $groupBoxGrid.RowDefinitions.Add((New-Object Windows.Controls.RowDefinition))
-      }
-      [Windows.Controls.Grid]::SetColumn($checkBox, $column)
-      [Windows.Controls.Grid]::SetRow($checkBox, $row)
-      $null = $groupBoxGrid.Children.Add($checkBox)
-      [void]$allCheckBoxes.Add($checkBox)
-      $counter++
-    }
-
-    $scrollViewer.Content = $groupBoxGrid
-    $tabItem.Content = $scrollViewer
+    $tabItem.Tag = [pscustomobject]@{ Category = [string]$category; Populated = $false }
     $null = $tabControl.Items.Add($tabItem)
+  }
+
+  $ensureAllOssTabs = {
+    $tc = $dialogCtx.TabControl
+    foreach ($ti in $tc.Items) {
+      & $populateOssTab ([Windows.Controls.TabItem]$ti)
+    }
+  }.GetNewClosure()
+
+  $tabControl.Add_SelectionChanged( ({
+    param($sender, $e)
+    $sel = $sender.SelectedItem
+    if ($sel -is [Windows.Controls.TabItem]) { & $populateOssTab $sel }
+  }).GetNewClosure() )
+
+  if ($dialogCtx.TabControl.Items.Count -gt 0) {
+    & $populateOssTab ([Windows.Controls.TabItem]$dialogCtx.TabControl.Items[0])
   }
 
   $buttonPanelLeft = New-Object Windows.Controls.StackPanel
@@ -381,23 +492,26 @@ function Show-CategoryDialog {
     return $b
   }
 
-  $null = $buttonPanelLeft.Children.Add((New-ActionButton -Label 'Select all' -OnClick {
-      foreach ($cb in $allCheckBoxes) { $cb.IsChecked = $true }
-    }))
+  $null = $buttonPanelLeft.Children.Add((New-ActionButton -Label 'Select all' -OnClick ({
+      & $ensureAllOssTabs
+      foreach ($cb in $dialogCtx.AllCheckBoxes) { $cb.IsChecked = $true }
+    }).GetNewClosure() ))
 
-  $null = $buttonPanelLeft.Children.Add((New-ActionButton -Label 'Select none' -OnClick {
-      foreach ($cb in $allCheckBoxes) { $cb.IsChecked = $false }
-    }))
+  $null = $buttonPanelLeft.Children.Add((New-ActionButton -Label 'Select none' -OnClick ({
+      & $ensureAllOssTabs
+      foreach ($cb in $dialogCtx.AllCheckBoxes) { $cb.IsChecked = $false }
+    }).GetNewClosure() ))
 
-  $null = $buttonPanelLeft.Children.Add((New-ActionButton -Label 'Select defaults' -OnClick {
-      foreach ($cb in $allCheckBoxes) {
+  $null = $buttonPanelLeft.Children.Add((New-ActionButton -Label 'Select defaults' -OnClick ({
+      & $ensureAllOssTabs
+      foreach ($cb in $dialogCtx.AllCheckBoxes) {
         $parts = [string]$cb.Tag -split '\|', 3
         $defStr = if ($parts.Count -ge 3) { $parts[2] } else { 'FALSE' }
         $parsed = $false
         [void][bool]::TryParse($defStr, [ref]$parsed)
         $cb.IsChecked = $parsed
       }
-    }))
+    }).GetNewClosure() ))
 
   $buttonPanelRight = New-Object Windows.Controls.StackPanel
   $buttonPanelRight.Orientation = 'Horizontal'
@@ -405,24 +519,25 @@ function Show-CategoryDialog {
   $buttonPanelRight.Margin = '5'
   [Windows.Controls.Grid]::SetRow($buttonPanelRight, 1)
 
-  $null = $buttonPanelRight.Children.Add((New-ActionButton -Label 'Install' -OnClick {
+  $null = $buttonPanelRight.Children.Add((New-ActionButton -Label 'Install' -OnClick ({
+      & $ensureAllOssTabs
       $selectedRows = [System.Collections.Generic.List[object]]::new()
-      foreach ($cb in $allCheckBoxes) {
+      foreach ($cb in $dialogCtx.AllCheckBoxes) {
         if ($cb.IsChecked -ne $true) { continue }
-        $row = Resolve-RowFromTag -Tag ([string]$cb.Tag) -Categories $Categories
+        $row = & $dialogCtx.ResolveRowFromTag -Tag ([string]$cb.Tag) -Categories $dialogCtx.Categories
         if ($null -ne $row) { [void]$selectedRows.Add($row) }
       }
       if ($selectedRows.Count -gt 0) {
-        Install-SelectedRows -Rows @($selectedRows)
+        & $dialogCtx.InstallSelectedRows -Rows @($selectedRows)
       }
-      $window.DialogResult = $true
-      $window.Close()
-    }))
+      $dialogCtx.Window.DialogResult = $true
+      $dialogCtx.Window.Close()
+    }).GetNewClosure() ))
 
-  $null = $buttonPanelRight.Children.Add((New-ActionButton -Label 'Cancel' -OnClick {
-      $window.DialogResult = $false
-      $window.Close()
-    }))
+  $null = $buttonPanelRight.Children.Add((New-ActionButton -Label 'Cancel' -OnClick ({
+      $dialogCtx.Window.DialogResult = $false
+      $dialogCtx.Window.Close()
+    }).GetNewClosure() ))
 
   $null = $grid.Children.Add($tabControl)
   $null = $grid.Children.Add($buttonPanelLeft)

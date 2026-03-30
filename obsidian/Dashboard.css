@@ -1,0 +1,39 @@
+.dashboard {
+    font-family: inherit;
+    padding-left: 25px !important;
+    padding-right: 25px !important;
+    padding-top: 20px !important;
+	--metadata-display-reading: none; 
+    --metadata-display-editing: none; 
+}
+
+.dashboard .markdown-preview-section {
+    max-width: 100%;
+}
+
+.dashboard h1 {
+    border-bottom-style: dotted !important;
+    border-width: 1px !important;
+    padding-bottom: 3px !important;
+}
+
+div.markdown-preview-section>div>ul.has-list-bullet>li {
+    padding-left: 0px !important;
+}
+
+.dashboard div>ul {
+    list-style: none;
+    display: flex;
+    column-gap: 50px;
+    flex-flow: row wrap;
+}
+
+.dashboard div>ul>li {
+    min-width: 250px;
+    width: 15%;
+}
+
+.dashboard ul.dataview {
+    row-gap: 0px !important;
+    list-style-type: disc !important;
+}

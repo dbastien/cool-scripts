@@ -1,0 +1,37 @@
+.view-header-title-parent {
+  color: var(--text-muted); /* Default color for non-open parts of breadcrumbs */
+  min-width: 0;
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  visibility: visible !important; /* Ensure breadcrumbs are always visible */
+  opacity: 1 !important; /* Remove any fade effects */
+}
+
+.view-header-title-parent:empty {
+  display: none;
+}
+
+.view-header-title-parent .view-header-breadcrumb {
+  padding: 2px 4px;
+  border-radius: var(--radius-s);
+  color: var(--text-muted); /* Default text color for not-open parts */
+}
+
+.view-header-title-parent .view-header-breadcrumb.is-active {
+  color: var(--text-normal) !important; /* Highlight active (open) part of breadcrumb */
+  font-weight: bold; /* Optional: Bold for open part */
+}
+
+@media (hover: hover) {
+  .view-header-title-parent .view-header-breadcrumb:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+  }
+}
+
+/* Remove hover-triggered transitions */
+.view-header-title-parent .view-header-breadcrumb {
+  transition: none !important;
+  animation: none !important;
+}

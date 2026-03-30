@@ -1,0 +1,44 @@
+/* Minimal Mermaid preview tweaks (valid CSS only; Mermaid layout margins are not CSS properties). */
+
+div:has(> .mermaid) {
+  width: auto !important;
+  text-align: left;
+}
+
+.mermaid {
+  overflow: auto;
+  text-align: left;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+div.mermaid {
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+  resize: both;
+  overflow: auto;
+  position: relative;
+  height: auto;
+  width: auto;
+  min-width: 100px;
+  min-height: 100px;
+  box-sizing: border-box !important;
+  transform: none !important;
+  transform-origin: 0 0 !important;
+}
+
+div.mermaid::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: se-resize;
+}

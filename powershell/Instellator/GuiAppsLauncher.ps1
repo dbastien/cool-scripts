@@ -3,7 +3,7 @@
   Request admin, bootstrap PowerShell 7 if needed, then run GuiApps.ps1 (Explorer-friendly).
 
 .DESCRIPTION
-  Logs to GuiAppsLauncher.log next to this script. Forwards -CsvPath, -AutoDefault, -WhatIf, and -SkipChocolateyBootstrap to GuiApps.ps1.
+  Logs to GuiAppsLauncher.log next to this script. Forwards -CsvPath, -AutoDefault, -WhatIf, -SkipChocolateyBootstrap, and -UpgradeChocolatey to GuiApps.ps1.
   -ScriptDir is applied after elevation (optional working-directory hint from the elevated relaunch).
 #>
 # Elevate (if needed), ensure PowerShell 7+, then run GuiApps.ps1.
@@ -13,7 +13,8 @@ param(
   [string]$CsvPath = '',
   [switch]$AutoDefault,
   [switch]$WhatIf,
-  [switch]$SkipChocolateyBootstrap
+  [switch]$SkipChocolateyBootstrap,
+  [switch]$UpgradeChocolatey
 )
 
 $ErrorActionPreference = 'Stop'
@@ -33,6 +34,7 @@ function Get-InstallGuiAppsSplat {
   if ($AutoDefault.IsPresent) { $bp['AutoDefault'] = $true }
   if ($WhatIf.IsPresent) { $bp['WhatIf'] = $true }
   if ($SkipChocolateyBootstrap.IsPresent) { $bp['SkipChocolateyBootstrap'] = $true }
+  if ($UpgradeChocolatey.IsPresent) { $bp['UpgradeChocolatey'] = $true }
   return $bp
 }
 
@@ -125,6 +127,7 @@ if (-not $isAdmin) {
   if ($AutoDefault.IsPresent) { $elevArgs += '-AutoDefault' }
   if ($WhatIf.IsPresent) { $elevArgs += '-WhatIf' }
   if ($SkipChocolateyBootstrap.IsPresent) { $elevArgs += '-SkipChocolateyBootstrap' }
+  if ($UpgradeChocolatey.IsPresent) { $elevArgs += '-UpgradeChocolatey' }
   Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList $elevArgs -Wait
   exit
 }

@@ -1,0 +1,113 @@
+.cm-fold-indicator .collapse-indicator,
+.cm-gutterElement .collapse-indicator,
+.collapse-indicator,
+.fold-gutter {
+  opacity: 1;
+}
+
+/* Unset default bullets */
+:is(.cm-fold-indicator:hover,*) ~ .cm-formatting.cm-formatting-list .list-bullet::after,
+.list-bullet::after {
+  content: '';
+  width: unset; 
+  height: unset;
+  background-color: unset;
+  box-shadow: none;
+}
+
+/* Remove default bullets in rendered view */
+.markdown-rendered ul:not(.contains-task-list) {
+  list-style-type: none; /* Remove default bullets */
+  padding-left: 0;       /* Optional: Align lists with parent content */
+}
+
+.markdown-rendered ul:not(.contains-task-list) > li::marker {
+  color: transparent; /* Hide default bullets in case `list-style-type` fails */
+}
+
+.markdown-rendered ul:not(.contains-task-list) .collapse-indicator { 
+  cursor: grab; /* Display hand icon on hover */                  
+  padding: 0 10px;
+} 
+
+/* Get rid of the square that shows up after collapsing */
+li.is-collapsed .list-bullet:after,
+.is-collapsed ~ .cm-formatting-list .list-bullet:after {
+  display: none;
+}
+
+/* Custom bullets for 1st level list items */
+.markdown-rendered ul:not(.contains-task-list) > li {
+  position: relative; /* Allow positioning of custom bullets */
+  padding-left: 1em;  /* Space for custom bullet */
+}
+
+.markdown-rendered ul:not(.contains-task-list) > li::before {
+  content: '•';
+  position: absolute; /* Position bullet relative to the list item */
+  left: 0px;
+  top: 0.1em; /* Center bullet vertically */
+  display: inline-block; /* Prevent line breaks */
+  width: 1em;
+  text-align: left;
+  font-weight: 900;
+  font-size: 1.1em;
+  color: hsl(0, 20%, 70%); 
+}
+
+.markdown-rendered ul:not(.contains-task-list) ul > li::before { 
+  content: '⁚';
+  color: hsl(70, 20%, 70%);
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul > li::before {
+  content: '⁖';
+  color: hsl(140, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul > li::before { 
+  content: '⁛'; 
+  color: hsl(210, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul > li::before { 
+  content: '⁙'; 
+  color: hsl(280, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul > li::before { 
+  content: '•'; 
+  color: hsl(0, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul > li::before { 
+  content: '⁚'; 
+  color: hsl(70, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul > li::before { 
+  content: '⁖'; 
+  color: hsl(140, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul ul > li::before { 
+  content: '⁛'; 
+  color: hsl(210, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul ul ul > li::before { 
+  content: '⁙'; 
+  color: hsl(280, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul ul ul ul > li::before { 
+  content: '•'; 
+  color: hsl(0, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul ul ul ul ul > li::before { 
+  content: '⁚'; 
+  color: hsl(70, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul ul ul ul ul ul > li::before { 
+  content: '⁖'; 
+  color: hsl(140, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul ul ul ul ul ul ul > li::before { 
+  content: '⁛'; 
+  color: hsl(210, 20%, 70%); 
+}
+.markdown-rendered ul:not(.contains-task-list) ul ul ul ul ul ul ul ul ul ul ul ul ul ul > li::before { 
+  content: '⁙'; 
+  color: hsl(280, 20%, 70%); 
+}

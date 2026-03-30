@@ -1,0 +1,118 @@
+
+body {
+  --ribbon-padding: 2px 0px 0px 0px !important;
+  --ribbon-width: 30px !important;
+}
+
+
+/* highlight the background very slightly on mouse-over */
+.workspace-ribbon.side-dock-ribbon.mod-left:hover,
+.workspace-ribbon.side-dock-ribbon.mod-left:hover > .sidebar-toggle-button {
+  background-color: rgba(255,255,255,.01);
+}
+
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action svg {
+  height: calc(var(--ribbon-width) * 0.8);
+  width: calc(var(--ribbon-width) * 0.8);
+}
+
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action { 
+  padding: 0px 1px 1px 0px !important;
+}
+
+.workspace-ribbon {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 6px 0px 0px 0px !important;
+  border-right: var(--divider-width) solid var(--divider-color);
+}
+
+/* Icon Colors */
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(1) {
+  color: #E6C37E !important; /* Soft Yellow */
+  fill: #E6C37E !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(2) {
+  color: #9D90B8 !important; /* Muted Lavender */
+  fill: #9D90B8 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(3) {
+  color: #6DB5A0 !important; /* Soft Aqua */
+  fill: #6DB5A0 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(4) {
+  color: #D98C83 !important; /* Muted Coral */
+  fill: #D98C83 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(5) {
+  color: #88A1C4 !important; /* Soft Blue */
+  fill: #88A1C4 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(6) {
+  color: #C39FB1 !important; /* Soft Mauve */
+  fill: #C39FB1 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(7) {
+  color: #C6CB85 !important; /* Muted Lime */
+  fill: #C6CB85 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(8) {
+  color: #B1C8DD !important; /* Light Periwinkle */
+  fill: #B1C8DD !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(9) {
+  color: #D5A683 !important; /* Soft Tangerine */
+  fill: #D5A683 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(10) {
+  color: #7BA5A9 !important; /* Subtle Teal */
+  fill: #7BA5A9 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(11) {
+  color: #C29BA9 !important; /* Subtle Rose */
+  fill: #C29BA9 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(12) {
+  color: #A2C7A1 !important; /* Light Mint */
+  fill: #A2C7A1 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(13) {
+  color: #D4A677 !important; /* Muted Amber */
+  fill: #D4A677 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(14) {
+  color: #9DACB8 !important; /* Muted Ocean Blue */
+  fill: #9DACB8 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(15) {
+  color: #E3AE8F !important; /* Muted Peach */
+  fill: #E3AE8F !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(16) {
+  color: #7CACC4 !important; /* Muted Sky Blue */
+  fill: #7CACC4 !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(17) {
+  color: #8FAF8F !important; /* Soft Green */
+  fill: #8FAF8F !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(18) {
+  color: #B093BA !important; /* Subtle Violet */
+  fill: #B093BA !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(19) {
+  color: #9BC5AA !important; /* Light Jade */
+  fill: #9BC5AA !important;
+}
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:nth-of-type(20) {
+  color: #D7BE95 !important; /* Subtle Sandstone */
+  fill: #D7BE95 !important;
+}
+
+/* Hover And Focus Styles For All Icons */
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:hover,
+.workspace-ribbon .clickable-icon.side-dock-ribbon-action:focus {
+  background-color: rgba(255, 255, 255, 0.125) !important;
+  outline: 2px solid rgba(255, 255, 255, 0.25) !important;
+}

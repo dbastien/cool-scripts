@@ -6,7 +6,8 @@
 .DESCRIPTION
   Chromium cannot install extensions silently like Firefox .xpi downloads; this script opens official
   store URLs in Chrome (if installed) and Edge (if URL provided) so you can click Add.
-  Data: Chromium-extensions.csv next to this script. Use -AutoDefault for CSV defaults only.
+  Data: Chromium-extensions.csv next to this script (Category, Subcategory, Name, ...). Optional Subcategory adds GroupBoxes within a tab.
+  Use -AutoDefault for CSV defaults only.
 
 .EXAMPLE
   .\Instellator\ChromiumExt.ps1
@@ -93,6 +94,66 @@ function Get-CrCheckboxToolTip {
     if ($id) { return "Id: $id" }
   }
   return $tip
+}
+
+function Get-CsvSubcategoryValue {
+  param($Row)
+  $p = $Row.PSObject.Properties['Subcategory']
+  if ($null -eq $p -or $null -eq $p.Value) { return '' }
+  return [string]$p.Value.Trim()
+}
+
+function Get-CategorySubgroupModel {
+  param([System.Collections.Generic.List[object]]$Rows)
+  $anySub = $false
+  foreach ($r in $Rows) {
+    if (Get-CsvSubcategoryValue -Row $r) { $anySub = $true; break }
+  }
+  if (-not $anySub) {
+    return [pscustomobject]@{ Flat = $true; Groups = $null }
+  }
+  $groups = [ordered]@{}
+  foreach ($r in $Rows) {
+    $sk = Get-CsvSubcategoryValue -Row $r
+    if (-not $sk) { $sk = 'Other' }
+    if (-not $groups.Contains($sk)) {
+      $groups[$sk] = [System.Collections.Generic.List[object]]::new()
+    }
+    [void]$groups[$sk].Add($r)
+  }
+  return [pscustomobject]@{ Flat = $false; Groups = $groups }
+}
+
+function Add-CrCheckBoxesToGrid {
+  param(
+    [System.Collections.IEnumerable]$Rows,
+    [Windows.Controls.Grid]$TargetGrid,
+    [int]$ColumnCount,
+    [System.Collections.Generic.List[System.Windows.Controls.CheckBox]]$AllCheckBoxes
+  )
+  $counter = 0
+  foreach ($row in $Rows) {
+    $checkBox = New-Object Windows.Controls.CheckBox
+    $checkBox.Content = $row.Name
+    $checkBox.Tag = (Get-CrCheckBoxTag -Row $row)
+    $checkBox.Margin = '2'
+    $parsedDef = $false
+    [void][bool]::TryParse($row.DefaultChecked, [ref]$parsedDef)
+    $checkBox.IsChecked = $parsedDef
+    $tt = Get-CrCheckboxToolTip -Row $row
+    if (-not [string]::IsNullOrWhiteSpace($tt)) { $checkBox.ToolTip = $tt }
+
+    $column = $counter % $ColumnCount
+    $r = [math]::Floor($counter / $ColumnCount)
+    while ($TargetGrid.RowDefinitions.Count -le $r) {
+      $null = $TargetGrid.RowDefinitions.Add((New-Object Windows.Controls.RowDefinition))
+    }
+    [Windows.Controls.Grid]::SetColumn($checkBox, $column)
+    [Windows.Controls.Grid]::SetRow($checkBox, $r)
+    $null = $TargetGrid.Children.Add($checkBox)
+    [void]$AllCheckBoxes.Add($checkBox)
+    $counter++
+  }
 }
 
 function Resolve-ChromePath {
@@ -197,35 +258,30 @@ function Show-CrCategoryDialog {
     $scrollViewer = New-Object Windows.Controls.ScrollViewer
     $scrollViewer.VerticalScrollBarVisibility = 'Auto'
 
-    $innerGrid = New-Object Windows.Controls.Grid
-    1..2 | ForEach-Object { $null = $innerGrid.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
-
     $list = $Categories[$category]
-    $counter = 0
-    foreach ($row in $list) {
-      $checkBox = New-Object Windows.Controls.CheckBox
-      $checkBox.Content = $row.Name
-      $checkBox.Tag = (Get-CrCheckBoxTag -Row $row)
-      $checkBox.Margin = '2'
-      $parsedDef = $false
-      [void][bool]::TryParse($row.DefaultChecked, [ref]$parsedDef)
-      $checkBox.IsChecked = $parsedDef
-      $tt = Get-CrCheckboxToolTip -Row $row
-      if (-not [string]::IsNullOrWhiteSpace($tt)) { $checkBox.ToolTip = $tt }
-
-      $column = $counter % 2
-      $r = [math]::Floor($counter / 2)
-      while ($innerGrid.RowDefinitions.Count -le $r) {
-        $null = $innerGrid.RowDefinitions.Add((New-Object Windows.Controls.RowDefinition))
+    $model = Get-CategorySubgroupModel -Rows $list
+    if ($model.Flat) {
+      $innerGrid = New-Object Windows.Controls.Grid
+      1..2 | ForEach-Object { $null = $innerGrid.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
+      Add-CrCheckBoxesToGrid -Rows $list -TargetGrid $innerGrid -ColumnCount 2 -AllCheckBoxes $allCheckBoxes
+      $scrollViewer.Content = $innerGrid
+    } else {
+      $outer = New-Object Windows.Controls.StackPanel
+      $outer.Orientation = 'Vertical'
+      $firstGroup = $true
+      foreach ($subName in $model.Groups.Keys) {
+        $gb = New-Object Windows.Controls.GroupBox
+        $gb.Header = [string]$subName
+        $gb.Margin = if ($firstGroup) { '0,2,0,7' } else { '0,7,0,7' }
+        $firstGroup = $false
+        $inner = New-Object Windows.Controls.Grid
+        1..2 | ForEach-Object { $null = $inner.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
+        Add-CrCheckBoxesToGrid -Rows $model.Groups[$subName] -TargetGrid $inner -ColumnCount 2 -AllCheckBoxes $allCheckBoxes
+        $gb.Content = $inner
+        [void]$outer.Children.Add($gb)
       }
-      [Windows.Controls.Grid]::SetColumn($checkBox, $column)
-      [Windows.Controls.Grid]::SetRow($checkBox, $r)
-      $null = $innerGrid.Children.Add($checkBox)
-      [void]$allCheckBoxes.Add($checkBox)
-      $counter++
+      $scrollViewer.Content = $outer
     }
-
-    $scrollViewer.Content = $innerGrid
     $tabItem.Content = $scrollViewer
     $null = $tabControl.Items.Add($tabItem)
   }

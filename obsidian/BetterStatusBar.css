@@ -1,0 +1,10 @@
+.status-bar {
+  border-color: hsla(0, 0%, 10%, 1.0);
+  border-width: 3px 0px 0px 3px;
+  padding: 0px 0px 2px 0px;
+  gap: 0;
+	
+  .theme-dark & {
+    color:var(--nav-item-color) !important; /* more readable text */
+  } 
+}

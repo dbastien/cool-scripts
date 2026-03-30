@@ -4,7 +4,8 @@
   WPF picker for Firefox extension .xpi downloads (data-driven CSV).
 
 .DESCRIPTION
-  Defaults to Firefox-extensions.csv next to this script. Saves under .\firefox-extensions\ unless -OutDir is set.
+  Defaults to Firefox-extensions.csv next to this script (Category, Subcategory, Name, ...). Optional Subcategory adds GroupBoxes within a tab.
+  Saves under .\firefox-extensions\ unless -OutDir is set.
   Install downloaded .xpi files from about:addons or drag into Firefox.
   Use -LooseXpi to copy local .xpi files or every *.xpi in a folder into -OutDir (same skip-if-exists behavior as downloads).
   Use -All to download every row in the CSV without opening the GUI (same idea as install-extensions.ps1 in this folder).
@@ -87,6 +88,66 @@ function Get-FxCheckboxToolTip {
     if ($id) { return "Id: $id" }
   }
   return $tip
+}
+
+function Get-CsvSubcategoryValue {
+  param($Row)
+  $p = $Row.PSObject.Properties['Subcategory']
+  if ($null -eq $p -or $null -eq $p.Value) { return '' }
+  return [string]$p.Value.Trim()
+}
+
+function Get-CategorySubgroupModel {
+  param([System.Collections.Generic.List[object]]$Rows)
+  $anySub = $false
+  foreach ($r in $Rows) {
+    if (Get-CsvSubcategoryValue -Row $r) { $anySub = $true; break }
+  }
+  if (-not $anySub) {
+    return [pscustomobject]@{ Flat = $true; Groups = $null }
+  }
+  $groups = [ordered]@{}
+  foreach ($r in $Rows) {
+    $sk = Get-CsvSubcategoryValue -Row $r
+    if (-not $sk) { $sk = 'Other' }
+    if (-not $groups.Contains($sk)) {
+      $groups[$sk] = [System.Collections.Generic.List[object]]::new()
+    }
+    [void]$groups[$sk].Add($r)
+  }
+  return [pscustomobject]@{ Flat = $false; Groups = $groups }
+}
+
+function Add-FxCheckBoxesToGrid {
+  param(
+    [System.Collections.IEnumerable]$Rows,
+    [Windows.Controls.Grid]$TargetGrid,
+    [int]$ColumnCount,
+    [System.Collections.Generic.List[System.Windows.Controls.CheckBox]]$AllCheckBoxes
+  )
+  $counter = 0
+  foreach ($row in $Rows) {
+    $checkBox = New-Object Windows.Controls.CheckBox
+    $checkBox.Content = $row.Name
+    $checkBox.Tag = (Get-FxCheckBoxTag -Row $row)
+    $checkBox.Margin = '2'
+    $parsed = $false
+    [void][bool]::TryParse($row.DefaultChecked, [ref]$parsed)
+    $checkBox.IsChecked = $parsed
+    $tt = Get-FxCheckboxToolTip -Row $row
+    if (-not [string]::IsNullOrWhiteSpace($tt)) { $checkBox.ToolTip = $tt }
+
+    $column = $counter % $ColumnCount
+    $r = [math]::Floor($counter / $ColumnCount)
+    while ($TargetGrid.RowDefinitions.Count -le $r) {
+      $null = $TargetGrid.RowDefinitions.Add((New-Object Windows.Controls.RowDefinition))
+    }
+    [Windows.Controls.Grid]::SetColumn($checkBox, $column)
+    [Windows.Controls.Grid]::SetRow($checkBox, $r)
+    $null = $TargetGrid.Children.Add($checkBox)
+    [void]$AllCheckBoxes.Add($checkBox)
+    $counter++
+  }
 }
 
 function Test-HasLooseXpiPaths {
@@ -224,35 +285,30 @@ function Show-FxCategoryDialog {
     $scrollViewer = New-Object Windows.Controls.ScrollViewer
     $scrollViewer.VerticalScrollBarVisibility = 'Auto'
 
-    $groupBoxGrid = New-Object Windows.Controls.Grid
-    1..3 | ForEach-Object { $null = $groupBoxGrid.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
-
     $list = $Categories[$category]
-    $counter = 0
-    foreach ($row in $list) {
-      $checkBox = New-Object Windows.Controls.CheckBox
-      $checkBox.Content = $row.Name
-      $checkBox.Tag = (Get-FxCheckBoxTag -Row $row)
-      $checkBox.Margin = '2'
-      $parsed = $false
-      [void][bool]::TryParse($row.DefaultChecked, [ref]$parsed)
-      $checkBox.IsChecked = $parsed
-      $tt = Get-FxCheckboxToolTip -Row $row
-      if (-not [string]::IsNullOrWhiteSpace($tt)) { $checkBox.ToolTip = $tt }
-
-      $column = $counter % 3
-      $r = [math]::Floor($counter / 3)
-      while ($groupBoxGrid.RowDefinitions.Count -le $r) {
-        $null = $groupBoxGrid.RowDefinitions.Add((New-Object Windows.Controls.RowDefinition))
+    $model = Get-CategorySubgroupModel -Rows $list
+    if ($model.Flat) {
+      $groupBoxGrid = New-Object Windows.Controls.Grid
+      1..3 | ForEach-Object { $null = $groupBoxGrid.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
+      Add-FxCheckBoxesToGrid -Rows $list -TargetGrid $groupBoxGrid -ColumnCount 3 -AllCheckBoxes $allCheckBoxes
+      $scrollViewer.Content = $groupBoxGrid
+    } else {
+      $outer = New-Object Windows.Controls.StackPanel
+      $outer.Orientation = 'Vertical'
+      $firstGroup = $true
+      foreach ($subName in $model.Groups.Keys) {
+        $gb = New-Object Windows.Controls.GroupBox
+        $gb.Header = [string]$subName
+        $gb.Margin = if ($firstGroup) { '0,2,0,7' } else { '0,7,0,7' }
+        $firstGroup = $false
+        $inner = New-Object Windows.Controls.Grid
+        1..3 | ForEach-Object { $null = $inner.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) }
+        Add-FxCheckBoxesToGrid -Rows $model.Groups[$subName] -TargetGrid $inner -ColumnCount 3 -AllCheckBoxes $allCheckBoxes
+        $gb.Content = $inner
+        [void]$outer.Children.Add($gb)
       }
-      [Windows.Controls.Grid]::SetColumn($checkBox, $column)
-      [Windows.Controls.Grid]::SetRow($checkBox, $r)
-      $null = $groupBoxGrid.Children.Add($checkBox)
-      [void]$allCheckBoxes.Add($checkBox)
-      $counter++
+      $scrollViewer.Content = $outer
     }
-
-    $scrollViewer.Content = $groupBoxGrid
     $tabItem.Content = $scrollViewer
     $null = $tabControl.Items.Add($tabItem)
   }

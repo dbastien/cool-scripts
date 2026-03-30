@@ -1,0 +1,9 @@
+/* EDIT MODE */
+body .view-content .inline-title {
+    text-align: center !important; 
+}
+
+/* PREVIEW MODE */
+body .mod-header.mod-ui .inline-title {
+    text-align: center !important; 
+}

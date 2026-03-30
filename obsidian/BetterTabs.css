@@ -1,0 +1,167 @@
+/*
+todo:
+  make new tab button icon turn greenish on mouseover
+  put pin icon on left
+  show pin icon even if not pinned on hover in like the unpinned icon state?
+  △ ▽ ▲ ▼ 
+*/
+
+/*
+  Equal share of the tab strip (flex 1 1 0), with a hard min width so labels stay usable.
+  max-width: max-content was collapsing tabs in Obsidian’s nested flex layout.
+*/
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header {
+  flex: 1 1 0% !important;
+  min-width: 5rem !important;
+  max-width: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  border-radius: 0px;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header .workspace-tab-header-inner {
+  gap: 0 !important;
+  margin: 0 !important;
+  border-radius: 0px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header .workspace-tab-header-inner-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* remove spacing between tabs */
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header .workspace-tab-header-inner-close-button {
+  display: none !important; /* don't normally display close button */
+  padding: 0px 1px 0px 0px !important;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header:hover .workspace-tab-header-inner-close-button {
+  display: flex !important; /* always display close button for hovered tab */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header .workspace-tab-header-status-icon {
+  display: none !important; /* don't normally display pin */
+  transform:scale(0.75);
+  transform-origin:center; 
+  opacity:0.9 !important;
+  padding: 0px 0px 0px 2px !important;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header:hover .workspace-tab-header-status-icon {
+  display: flex !important; /* always display pin button for hovered tab */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header.is-active.is-highlighted .workspace-tab-header-inner-title {
+  color: hsla(0, 0%, 100%, 1) !important;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header:hover:not(.is-active) .workspace-tab-header-inner-title {
+  color: hsla(0, 0%, 100%, 1) !important;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header.is-active .workspace-tab-header-inner {
+  background-color: rgba(0, 128, 255, 0.15) !important; /* colorize active tab background */
+  border: none; /* remove any existing borders */
+  border-top: 3px solid hsla(160, 50%, 50%, .5); /* Add a line at the top */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header:not(.is-active):hover .workspace-tab-header-inner {
+  background-color: rgba(0, 255, 128, 0.15) !important; /* colorize non-active tab background */    
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header.is-active:hover .workspace-tab-header-inner {
+  background-color: rgba(0, 255, 128, 0.15) !important; /* colorize hovered active tab background */    
+}
+
+/* tab separator bar */
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-inner::after {
+    display: flex;
+	width: 1px;
+	height: 60%;
+}
+
+.workspace .mod-root .workspace-tab-header-container {
+  border-bottom: 0 !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-container-inner {
+  padding-left: 4px !important; /* mostly remove space before first tab */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header.is-active {
+  background: none;
+  box-shadow: none;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header.is-active::before,
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header.is-active::after {
+  display: none !important; /* remove weird bottom corners */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header .workspace-tab-header-inner-close-button {
+  background-color: transparent !important;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-new-tab .clickable-icon {
+  transform:scale(0.9); /* Smaller new tab button */
+  transform-origin:center;  
+  border-radius: 0px;   /* remove rounded edges */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-new-tab:hover .clickable-icon {
+  color: hsla(0, 0%, 100%, 1) !important; /* Highlight icon on hover */
+}
+
+div.workspace-tab-header:has(div.mod-pinned) .workspace-tab-header-inner {
+  border: none; /* remove any existing borders */
+  border-top: 3px solid hsla(240, 50%, 50%, .5); /* add a line at the top of pinned tabs */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-inner-close-button:hover {
+  color: hsla(0, 100%, 50%, 1) !important; /* turn the close button red on hover */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-status-icon:hover {
+  color: hsla(0, 100%, 50%, 1) !important; /* turn the pin button red on hover */
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-new-tab {
+  display: flex !important;
+  position: relative !important;
+  align-items: center !important;
+  /* align-items: stretch !important; */
+  justify-content: center !important;
+  background-color: transparent !important;
+  height: 100% !important; /* full height of the tab bar */
+  padding: 0 !important;
+  margin-inline-start: -11px;
+}
+
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-new-tab:hover,
+.workspace .mod-root .workspace-tab-header-container .workspace-tab-header-new-tab:focus {
+  background-color: var(--bg-hover) !important; /* Highlight on hover or focus */
+}
+
+.is-left-sidedock-open .workspace-ribbon.side-dock-ribbon.mod-left::before, .sidebar-toggle-button:is(.mod-right, .mod-left .mod-root), .mod-top .workspace-tab-header-container {
+	height: 30px; 
+}
+ 
+.workspace .mod-root .workspace-tab-header { 
+	padding-bottom: 0px; 
+	padding-top: 0px;
+}
+
+.workspace-ribbon.mod-left {
+  margin-top: 30px;
+}

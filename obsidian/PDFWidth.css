@@ -1,0 +1,5 @@
+.pdf-embed, .markdown-source-view .pdf-embed, 
+.markdown-source-view.mod-cm6 .cm-content > .pdf-embed, .internal-embed.pdf-embed:not(.image-embed) {
+    width: 800px; 
+    /* height: 400px !important; */
+}
