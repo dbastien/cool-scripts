@@ -7,9 +7,9 @@
 #>
 $ErrorActionPreference = 'Stop'
 $testsRoot = $PSScriptRoot
-$shortps1Root = Split-Path $testsRoot -Parent
+$ptRoot = Split-Path $testsRoot -Parent
 
-& (Join-Path $shortps1Root 'Install-DevDependencies.ps1')
+& (Join-Path $ptRoot 'dev\Install-DevDependencies.ps1')
 
 Import-Module Pester -MinimumVersion 5.0.0 -MaximumVersion 5.99.999 -ErrorAction Stop
 

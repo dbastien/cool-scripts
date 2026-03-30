@@ -1,33 +1,35 @@
 Category,Name,PackageID,DefaultChecked,PackageManager,Notes
-Browser,Chrome (Beta),Google.Chrome.Beta,TRUE,winget,
-Browser,Firefox,firefox,FALSE,choco,
-Browser,Floorp,floorp,TRUE,choco,based on firefox
+Browser,Chrome,googlechrome,TRUE,choco,
+Browser,Firefox,firefox,TRUE,choco,
+Browser,Floorp,floorp,FALSE,choco,based on firefox
 Browser,Librewolf,librewolf,FALSE,choco,
-Browser,Opera (Beta),Opera.Opera.Beta,TRUE,winget,
-Browser,Opera GX,opera-gx,FALSE,choco,"""gamer"" version of opera"
+Browser,Opera,Opera.Opera,FALSE,winget,
 Browser,Vivaldi,vivaldi,FALSE,choco,
-Communication,Discord,discord,TRUE,choco,
-Communication,Skype,skype,TRUE,choco,
-Communication,Slack,slack,TRUE,choco,
-Communication,Zoom,zoom,TRUE,choco,
+Communication,Discord,Discord.Discord,TRUE,winget,
+Communication,Skype,skype,FALSE,choco,
+Communication,Slack,slack,FALSE,choco,
+Communication,Zoom,Zoom.Zoom,FALSE,winget,
 Development,.NET SDK Preview,Microsoft.DotNet.SDK.Preview,TRUE,winget,
 Development,Beyond Compare,beyondcompare,TRUE,choco,merge
+Development,Cursor,Anysphere.Cursor,FALSE,winget,
 Development,Docker Desktop,docker-desktop,FALSE,choco,
 Development,Fira Code Nerd Font,nerd-fonts-firacode,TRUE,choco,font (ligatures + icon glyphs; use in Windows Terminal)
 Development,Git,git,TRUE,choco,
-Development,GitKraken,gitkraken,TRUE,choco,
+Development,GitKraken,Axosoft.GitKraken,FALSE,winget,
 Development,Jetbrains Toolbox,jetbrainstoolbox,TRUE,choco,
 Development,Python 2.x,python2,FALSE,choco,
 Development,Python 3.x,python3,TRUE,choco,
-Development,Unity Hub,unityhub,FALSE,choco,
+Development,Unity Hub,Unity.UnityHub,FALSE,winget,
 Development,Visual Studio Code,Microsoft.VisualStudioCode,TRUE,winget,
+Development,WSL 2,Microsoft.WSL,TRUE,winget,Windows Subsystem for Linux; install a distro after (e.g. Ubuntu from Store or winget)
 Development,WinMerge,winmerge,TRUE,choco,merge
 Document,Acrobat Reader DC,adobereader,TRUE,choco,
 Document,Foxit PDF Reader,foxitreader,FALSE,choco,
 Document,Logseq,logseq,FALSE,choco,
 Document,Notepad++,notepadplusplus,TRUE,choco,
 Document,Obsidian,obsidian,TRUE,choco,
-Download,qBittorrent (Beta),qBittorrent.qBittorrent.Beta,FALSE,winget,
+Document,SumatraPDF,SumatraPDF.SumatraPDF,FALSE,winget,
+Download,qBittorrent,qbittorrent,FALSE,choco,stable Chocolatey build was newer than winget beta when compared
 Download,yt-dlp,yt-dlp,TRUE,choco,youtube downloader
 Download,Free Download Manager,SoftDeluxe.FreeDownloadManager,FALSE,winget,HTTP/BT download manager GUI (complements yt-dlp CLI)
 Games,Battle.net,battlenet,FALSE,choco,
@@ -38,7 +40,7 @@ Games,Epic Game Store,epicgameslauncher,FALSE,choco,
 Games,GOG Galaxy,goggalaxy,FALSE,choco,
 Games,Itch,itch,FALSE,choco,
 Games,Playnite,playnite,FALSE,choco,
-Games,Reshade,Reshade.Setup,TRUE,winget,
+Games,Reshade,reshade,TRUE,choco,
 Games,RetroArch,retroarch,FALSE,choco,
 Games,Steam,steam,TRUE,choco,
 Games,Ubisoft Connect,ubisoft-connect,FALSE,choco,
@@ -47,11 +49,12 @@ Hex Editor,HxD,hxd,TRUE,choco,
 Hex Editor,ImHex,WerWolv.Imhex,TRUE,winget,
 Media Creation,Blender,blender,TRUE,choco,
 Media Creation,Inkscape,inkscape,FALSE,choco,vector art
-Media Creation,Kdenlive,kdenlive,TRUE,choco,
+Media Creation,Kdenlive,KDE.Kdenlive,TRUE,winget,
 Media Creation,OBS Studio,obs-studio,TRUE,choco,
 Media Creation,Paint.net,paintdotnet,TRUE,choco,
 Media Creation,Tenacity,tenacity,TRUE,choco,
 Media Playback,FastStone Image Viewer,fsviewer,TRUE,choco,
+Media Playback,ImageGlass,DuongDieuPhap.ImageGlass,FALSE,winget,
 Media Playback,K-Lite Codec Pack (Full),k-litecodecpackfull,TRUE,choco,includes mpc-hc
 Media Playback,Kodi,kodi,FALSE,choco,living room media player
 Media Playback,Spotify,spotify,TRUE,choco,
@@ -69,30 +72,36 @@ Runtime,.NET Runtime 8,Microsoft.DotNet.DesktopRuntime.8,TRUE,winget,
 Runtime,Java Runtime,javaruntime,TRUE,choco,
 Runtime,VC++ Redist (All),vcredist-all,TRUE,choco,
 Security,KeePassXC,keepassxc,FALSE,choco,
+Security,Tailscale,Tailscale.Tailscale,FALSE,winget,
 Security,VeraCrypt,veracrypt,FALSE,choco,
 Password managers,LastPass,LastPass.LastPass,FALSE,winget,Desktop app; use Firefox/Chromium extension pickers for browser plugins
 Password managers,1Password,AgileBits.1Password,FALSE,winget,Stable desktop app; use extension pickers for browser plugins
 Password managers,Bitwarden,Bitwarden.Bitwarden,FALSE,winget,Desktop app; use extension pickers for browser plugins
 Password managers,Dashlane,Dashlane.Dashlane,FALSE,winget,Desktop app; use extension pickers for browser plugins
-System Enhancements,CopyQ,copyq,TRUE,choco,improved clipboard
+System Enhancements,AutoHotkey v2,AutoHotkey.AutoHotkey,FALSE,winget,
+System Enhancements,CopyQ,hluk.CopyQ,TRUE,winget,improved clipboard
 System Enhancements,Directory Opus,directoryopus,TRUE,choco,essential file manager but is shareware
 System Enhancements,Display Fusion,displayFusion,TRUE,choco,multiple monitors
 System Enhancements,Everything (Alpha),voidtools.Everything.Alpha,TRUE,winget,search - supported by many other apps
-System Enhancements,Flameshot,flameshot,TRUE,choco,screenshot
+System Enhancements,Flameshot,Flameshot.Flameshot,TRUE,winget,screenshot
 System Enhancements,Flow Launcher,flow-launcher,TRUE,choco,improved power toys run
 System Enhancements,PowerToys,powertoys,TRUE,choco,
-System Enhancements,ShareX,sharex,FALSE,choco,screenshot
+System Enhancements,ShareX,sharex,TRUE,choco,screenshot
 System Enhancements,StartAllBack,StartIsBack.StartAllBack,TRUE,winget,best taskbar app
 System Enhancements,System Informer (nightly),systeminformer-nightlybuilds,TRUE,choco,improved task manager
 System Info,CPU-Z,cpu-z,TRUE,choco,
-System Info,Crystal Disk Mark,crystaldiskmark,TRUE,choco,
+System Info,Crystal Disk Mark,CrystalDewWorld.CrystalDiskMark,TRUE,winget,
 System Info,GPU-Z,gpu-z,TRUE,choco,
 System Info,HWMonitor,hwmonitor,TRUE,choco,
+System Info,HWiNFO64,REALiX.HWiNFO,TRUE,winget,
 System Info,PCI-Z,pci-z,FALSE,choco,
-System Info,WinDirStat,windirstat,TRUE,choco,
+System Info,Process Explorer,Microsoft.Sysinternals.ProcessExplorer,TRUE,winget,Sysinternals
+System Info,WinDirStat,WinDirStat.WinDirStat,TRUE,winget,
 Terminal,KiTTY,kitty,TRUE,choco,
-Terminal,Windows Terminal,terminal,TRUE,winget,
-Utilities,Google Drive,googledrive,TRUE,choco,
+Terminal,Windows Terminal,Microsoft.WindowsTerminal,TRUE,winget,
+Utilities,BCUninstaller,Klocman.BulkCrapUninstaller,TRUE,winget,Bulk Crap Uninstaller
+Utilities,Google Drive,Google.GoogleDrive,TRUE,winget,
+Utilities,LocalSend,LocalSend.LocalSend,FALSE,winget,
 Utilities,Nanazip,NanaZip,TRUE,choco,7-zip fork with better gui
 Utilities,O&O ShutUp10++,shutup10,TRUE,choco,
 Utilities,Qalculate!,qalculate,TRUE,choco,calculator

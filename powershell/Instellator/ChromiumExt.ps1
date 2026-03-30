@@ -9,13 +9,13 @@
   Data: Chromium-extensions.csv next to this script. Use -AutoDefault for CSV defaults only.
 
 .EXAMPLE
-  .\Instellator\Install-ChromiumExtensions.ps1
+  .\Instellator\ChromiumExt.ps1
 
 .EXAMPLE
-  .\Instellator\Install-ChromiumExtensions.ps1 -AutoDefault
+  .\Instellator\ChromiumExt.ps1 -AutoDefault
 
 .EXAMPLE
-  .\Instellator\Install-ChromiumExtensions.ps1 -WhatIf
+  .\Instellator\ChromiumExt.ps1 -WhatIf
 #>
 param(
   [string]$CsvPath = '',
@@ -26,8 +26,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$shortPs1Root = Split-Path -Parent $here
-$psPow = Split-Path -Parent $shortPs1Root
+$psPow = Split-Path -Parent $here
 $ptRoot = Join-Path $psPow 'toasty'
 if (-not $CsvPath) {
   $CsvPath = Join-Path $here 'Chromium-extensions.csv'
@@ -315,9 +314,9 @@ if ($AutoDefault) {
   if ($tags.Count -gt 0) {
     Install-SelectedChromiumStores -Tags @($tags)
   }
-  Write-CrExtMsg 'Install-ChromiumExtensions: done.' Ok
+  Write-CrExtMsg 'ChromiumExt: done.' Ok
   exit 0
 }
 
 Show-CrCategoryDialog -Categories $categories
-Write-CrExtMsg 'Install-ChromiumExtensions: done.' Ok
+Write-CrExtMsg 'ChromiumExt: done.' Ok

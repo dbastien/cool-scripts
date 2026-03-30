@@ -4,17 +4,18 @@
   WPF picker for desktop / non-CLI apps (winget + Chocolatey), then installs selections unattended.
 
 .DESCRIPTION
-  Data file defaults to GUI-apps.csv next to this script (from references/software.csv). Tooltips: optional Tooltip column, else Notes.
-  For headless installs of CSV defaults only: -AutoDefault
+  Catalog CSV (default GUI-apps.csv next to this script): Category, Name, PackageID, DefaultChecked, PackageManager, Notes (optional Tooltip column for tooltips; else Notes).
+  For headless installs of CSV defaults only: -AutoDefault.
+  To run elevated from Explorer (bootstrap PS 7 if needed): GuiAppsLauncher.ps1 in this folder.
 
 .EXAMPLE
-  .\Instellator\Install-GuiApps.ps1
+  .\powershell\Instellator\GuiApps.ps1
 
 .EXAMPLE
-  .\Instellator\Install-GuiApps.ps1 -AutoDefault
+  .\powershell\Instellator\GuiApps.ps1 -AutoDefault
 
 .EXAMPLE
-  .\Instellator\Install-GuiApps.ps1 -CsvPath 'D:\my-apps.csv' -WhatIf
+  .\powershell\Instellator\GuiApps.ps1 -CsvPath 'D:\my-apps.csv' -WhatIf
 #>
 param(
   [string]$CsvPath = '',
@@ -26,8 +27,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$shortPs1Root = Split-Path -Parent $here
-$psPow = Split-Path -Parent $shortPs1Root
+$psPow = Split-Path -Parent $here
 $ptRoot = Join-Path $psPow 'toasty'
 if (-not $CsvPath) {
   $CsvPath = Join-Path $here 'GUI-apps.csv'
@@ -325,9 +325,9 @@ if ($AutoDefault) {
   if ($tags.Count -gt 0) {
     Install-SelectedPackages -Tags @($tags)
   }
-  Write-GuiAppsMsg 'Install-GuiApps: done.' Ok
+  Write-GuiAppsMsg 'GuiApps: done.' Ok
   exit 0
 }
 
 Show-CategoryDialog -Categories $categories
-Write-GuiAppsMsg 'Install-GuiApps: done.' Ok
+Write-GuiAppsMsg 'GuiApps: done.' Ok

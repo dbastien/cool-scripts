@@ -1,8 +1,7 @@
 #requires -Version 7.2
 BeforeAll {
-    $script:ShortPs1Root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-    $script:PsPow = Split-Path -Parent $script:ShortPs1Root
-    $script:PtRoot = Join-Path $script:PsPow 'toasty'
+    $script:PtRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+    $script:PsPow = Split-Path -Parent $script:PtRoot
     $script:ToastyCli = Join-Path $script:PtRoot 'cli'
     $script:OldNoColor = $env:NO_COLOR
     $env:NO_COLOR = '1'
@@ -27,11 +26,11 @@ Describe 'Script syntax' {
             (Join-Path $script:PtRoot 'shell\quote.ps1')
             (Join-Path $script:PtRoot 'shell\install-profile.ps1')
             (Join-Path $script:PtRoot 'shell\prompt.ps1')
-            (Join-Path $script:ShortPs1Root 'cli\Install-Extern.ps1')
-            (Join-Path $script:ShortPs1Root 'cli\WingetManifest.ps1')
-            (Join-Path $script:ShortPs1Root 'SharedLibs\Install-DevDependencies.ps1')
+            (Join-Path $script:PtRoot 'winget\Install-Extern.ps1')
+            (Join-Path $script:PtRoot 'winget\WingetManifest.ps1')
+            (Join-Path $script:PtRoot 'dev\Install-DevDependencies.ps1')
         )
-        $paths += (Get-ChildItem -LiteralPath (Join-Path $script:ShortPs1Root 'Instellator') -Filter '*.ps1' -File -ErrorAction SilentlyContinue).FullName
+        $paths += (Get-ChildItem -LiteralPath (Join-Path $script:PsPow 'Instellator') -Filter '*.ps1' -File -ErrorAction SilentlyContinue).FullName
         foreach ($p in $paths) {
             $tokens = $null
             $errs = $null

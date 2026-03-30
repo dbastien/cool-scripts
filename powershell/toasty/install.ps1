@@ -26,9 +26,8 @@ function _msg([string]$m, [string]$l = 'Info') {
   else { Write-Host $m }
 }
 
-# --- Winget CLI installs (optional, if shortps1 is present) ---
-$shortPs1Root = Join-Path (Split-Path -Parent $toastyRoot) 'shortps1'
-$externScript = Join-Path $shortPs1Root 'cli\Install-Extern.ps1'
+# --- Winget CLI installs (optional) ---
+$externScript = Join-Path $toastyRoot 'winget\Install-Extern.ps1'
 if (Test-Path -LiteralPath $externScript) {
   $externArgs = @{}
   if ($MinimalExtern) { $externArgs['MinimalExtern'] = $true }
@@ -149,17 +148,18 @@ if (Test-Path -LiteralPath $profileScript) {
 }
 
 # --- Instellator GUI flows (optional) ---
-$instellator = Join-Path $shortPs1Root 'Instellator'
+$psPow = Split-Path -Parent $toastyRoot
+$instellator = Join-Path $psPow 'Instellator'
 if ($GuiApps) {
-  $s = Join-Path $instellator 'Install-GuiApps.ps1'
+  $s = Join-Path $instellator 'GuiApps.ps1'
   if (Test-Path -LiteralPath $s) { & $s }
 }
 if ($FirefoxExtensions) {
-  $s = Join-Path $instellator 'Install-FirefoxExtensions.ps1'
+  $s = Join-Path $instellator 'FirefoxExt.ps1'
   if (Test-Path -LiteralPath $s) { & $s }
 }
 if ($ChromiumExtensions) {
-  $s = Join-Path $instellator 'Install-ChromiumExtensions.ps1'
+  $s = Join-Path $instellator 'ChromiumExt.ps1'
   if (Test-Path -LiteralPath $s) { & $s }
 }
 

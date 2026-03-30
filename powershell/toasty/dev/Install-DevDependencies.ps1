@@ -1,7 +1,7 @@
 #requires -Version 7.2
 <#
 .SYNOPSIS
-    Installs dev dependencies declared in SharedLibs\Toasty.Dev.psd1 (Pester 5.x for tests).
+    Installs dev dependencies declared in Toasty.Dev.psd1 (Pester 5.x for tests).
 #>
 param(
     [switch]$WhatIf

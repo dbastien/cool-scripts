@@ -95,6 +95,11 @@ if ((_toasty_cfg 'general.cd_to_z' 'true') -eq 'true') {
   }
 }
 
+# winget shorthand
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+  function global:wg { winget @args }
+}
+
 # Typo aliases
 if ((_toasty_cfg 'general.typo_aliases' 'true') -eq 'true') {
   if (Get-Command git -ErrorAction SilentlyContinue) {

@@ -10,15 +10,14 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$shortPs1Root = Split-Path -Parent $here
-$psPow = Split-Path -Parent $shortPs1Root
-$ptRoot = Join-Path $psPow 'toasty'
+$ptRoot = Split-Path -Parent $here
+$psPow = Split-Path -Parent $ptRoot
 $common = Join-Path $ptRoot 'lib\common.ps1'
 if (Test-Path -LiteralPath $common) { . $common }
 
 $manifestPath = Join-Path $here 'WingetManifest.ps1'
 if (-not (Test-Path -LiteralPath $manifestPath)) {
-  throw "Missing WingetManifest.ps1 next to cli\Install-Extern.ps1"
+  throw "Missing WingetManifest.ps1 next to winget\Install-Extern.ps1"
 }
 . $manifestPath
 
@@ -159,7 +158,7 @@ function Invoke-NerdFontFiraCodeInstall {
     }
   }
   if (Get-Command Write-ToastyMsg -ErrorAction SilentlyContinue) {
-    Write-ToastyMsg 'Nerd Font Fira Code: install oh-my-posh (winget) or Chocolatey, then re-run with -NerdFontFiraCode, or use Instellator\Install-GuiApps.ps1 (Fira Code Nerd Font).' Warn
+    Write-ToastyMsg 'Nerd Font Fira Code: install oh-my-posh (winget) or Chocolatey, then re-run with -NerdFontFiraCode, or use Instellator\GuiApps.ps1 (Fira Code Nerd Font).' Warn
   } else {
     Write-Warning 'Nerd Font Fira Code: could not install automatically.'
   }

@@ -1,8 +1,4 @@
-Stay curious, then automate the boring parts.
-Small improvements repeated daily beat dramatic resets.
-Make the easy path the right path.
-Fast feedback turns rough scripts into useful tools.
-Read the error message twice before rewriting the command.
-Good defaults are a gift to your future self.
-A clean shell is a tiny productivity multiplier.
-When in doubt, write the helper script.
+“If we didn’t run at 60hz, boy, your reputation was shot.” — Ed Logg
+“It’s twenty milliseconds, or go home...” - John Carmack
+“I fought the crusade for 60fps locked frame-rate on the last generation...” - John Carmack
+“Ship the frame, then sharpen the pixels.” - ChatGPT
