@@ -15,8 +15,8 @@ $env:POWERSHELL_UPDATECHECK = 'Off'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
-# PSReadLine: prediction off here; Tab + extra keybindings applied at end of init after Import-Module.
-Set-PSReadLineOption -PredictionSource None
+# PSReadLine: menu dropdown on Tab (PredictionSource is set by history.ps1; keybindings at end of init)
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 
 $_shellDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $_toastyRoot = Split-Path -Parent $_shellDir
@@ -77,7 +77,23 @@ if (Get-Module -ListAvailable -Name Terminal-Icons) { Import-Module Terminal-Ico
 $_aliases = Join-Path $_toastyRoot 'lib\aliases.ps1'
 if (Test-Path -LiteralPath $_aliases) { . $_aliases -Config $_toastyCfg }
 
-# 4. Load prompt (unless disabled)
+# 4. did-you-mean command suggestions (PS 7.4+)
+if ($_toastyCfg['general.did_you_mean'] -ne 'false') {
+  $_dym = Join-Path $_shellDir 'did-you-mean.ps1'
+  if (Test-Path -LiteralPath $_dym) { . $_dym }
+}
+
+# 5. fzf keybindings (Ctrl+R, Ctrl+T, Alt+C)
+if ($_toastyCfg['general.fzf_bindings'] -ne 'false') {
+  $_fzf = Join-Path $_shellDir 'fzf.ps1'
+  if (Test-Path -LiteralPath $_fzf) { . $_fzf }
+}
+
+# 6. History (atuin or PSReadLine tuning)
+$_hist = Join-Path $_shellDir 'history.ps1'
+if (Test-Path -LiteralPath $_hist) { . $_hist -Config $_toastyCfg }
+
+# 7. Load prompt (unless disabled)
 if ($env:TOASTY_NO_PROMPT -ne '1') {
   $_prompt = Join-Path $_toastyRoot 'shell\prompt.ps1'
   if (Test-Path -LiteralPath $_prompt) {
@@ -87,11 +103,11 @@ if ($env:TOASTY_NO_PROMPT -ne '1') {
   }
 }
 
-# 4b. zoxide after prompt so init wraps Toasty's prompt (hook runs; cd -> z still applied)
+# 7b. zoxide after prompt so init wraps Toasty's prompt (hook runs; cd -> z still applied)
 $_zoxideToasty = Join-Path $_toastyRoot 'lib\zoxide-toasty.ps1'
 if (Test-Path -LiteralPath $_zoxideToasty) { . $_zoxideToasty -Config $_toastyCfg }
 
-# 5. Quote of the day (unless disabled via config or env)
+# 8. Quote of the day (unless disabled via config or env)
 $_quoteEnabled = $true
 if ($_toastyCfg.ContainsKey('general.quote_of_the_day') -and $_toastyCfg['general.quote_of_the_day'] -eq 'false') {
   $_quoteEnabled = $false
@@ -108,18 +124,17 @@ if ($_quoteEnabled) {
   }
 }
 
-# 6. Startup profiling result
+# 9. Startup profiling result
 if ($_toastyProfileEnabled -and $_toastyProfileStart) {
   $_toastyProfileStart.Stop()
   $e = [char]0x1B
   Write-Host "${e}[38;2;200;100;255m$(([char]0x23F1)) Shell startup: $([math]::Round($_toastyProfileStart.Elapsed.TotalMilliseconds))ms${e}[0m"
 }
 
-# PSReadLine last: wins over earlier profile; keeps PredictionSource None; Tab menu + common edit keys.
+# PSReadLine last: wins over earlier profile; Tab menu + common edit keys (prediction: see history.ps1)
 if (Get-Module -ListAvailable -Name PSReadLine) {
   Import-Module PSReadLine -ErrorAction SilentlyContinue
   if (Get-Module PSReadLine) {
-    Set-PSReadLineOption -PredictionSource None
     Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
     Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
@@ -135,5 +150,5 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
 
 # Cleanup init-only variables
 Remove-Variable _shellDir, _toastyRoot, _toastyConfigDir, _toastyCfgPath, _toastyCfg -ErrorAction SilentlyContinue
-Remove-Variable _common, _aliases, _prompt, _cfgPath, _zoxideToasty, _quote, _quoteEnabled -ErrorAction SilentlyContinue
+Remove-Variable _common, _aliases, _dym, _fzf, _hist, _prompt, _cfgPath, _zoxideToasty, _quote, _quoteEnabled -ErrorAction SilentlyContinue
 Remove-Variable _toastyProfileStart, _toastyProfileEnabled -ErrorAction SilentlyContinue

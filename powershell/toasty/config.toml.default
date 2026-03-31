@@ -9,6 +9,14 @@ typo_aliases = true
 # Extra shortcuts aligned with linux/photontoaster/aliases.toml (git gs/ga/…, v/mkd/cd.., tool shims).
 # Replaces built-in aliases gc/gp/gl (git) and ps (procs) when those tools are available; set false to keep stock pwsh.
 photon_aliases = true
+# TOML-driven aliases from aliases.toml (git shortcuts, tool defaults, etc.)
+toml_aliases = true
+# "did you mean?" suggestions on command typos (PS 7.4+ only)
+did_you_mean = true
+# fzf keybindings: Ctrl+R (history), Ctrl+T (file picker), Alt+C (cd)
+fzf_bindings = true
+# atuin shell history sync (uses atuin binary if installed; falls back to fzf/PSReadLine)
+atuin = true
 # Directory listing tool: "eza" | "lsd" | "ls" (or empty to skip)
 ls_tool = "eza"
 # Show file-type icons in ls/ll (requires a Nerd Font)

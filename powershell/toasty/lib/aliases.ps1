@@ -234,3 +234,37 @@ if ((_toasty_cfg 'general.typo_aliases' 'true') -eq 'true') {
   function global:cler { Clear-Host }
   function global:clr { Clear-Host }
 }
+
+# TOML-driven aliases (aliases.toml)
+if ((_toasty_cfg 'general.toml_aliases' 'true') -eq 'true') {
+  $_tomlPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'aliases.toml'
+  if (-not (Test-Path -LiteralPath $_tomlPath)) {
+    $_cfgDir = if ($env:TOASTY_CONFIG_DIR) { $env:TOASTY_CONFIG_DIR } else { Join-Path $env:USERPROFILE '.config\toasty' }
+    $_tomlPath = Join-Path $_cfgDir 'aliases.toml'
+  }
+  if (Test-Path -LiteralPath $_tomlPath) {
+    $_existingCmds = @{}
+    Get-Command -Type Function, Alias -ErrorAction SilentlyContinue | ForEach-Object { $_existingCmds[$_.Name] = $true }
+
+    Get-Content -LiteralPath $_tomlPath -Encoding utf8 | ForEach-Object {
+      $line = $_.Trim()
+      if ($line -match '^\s*#' -or $line -eq '' -or $line -match '^\[') { return }
+      if ($line -match '^([^=]+)=\s*"(.+)"') {
+        $_aliasName = $Matches[1].Trim()
+        $_aliasCmd = $Matches[2].Trim()
+        if ($_existingCmds.ContainsKey($_aliasName)) { return }
+        $_parts = $_aliasCmd -split '\s+', 2
+        $_base = $_parts[0]
+        if (-not (Get-Command $_base -ErrorAction SilentlyContinue)) { return }
+        $_flagStr = if ($_parts.Count -gt 1) { $_parts[1] } else { '' }
+        $_flags = if ($_flagStr) { @($_flagStr -split '\s+') } else { @() }
+        $global:_toastyTomlAliases = @{} + ($global:_toastyTomlAliases ?? @{})
+        $global:_toastyTomlAliases[$_aliasName] = @{ Base = $_base; Flags = $_flags }
+        Set-Item -Path "function:global:$_aliasName" -Value ([scriptblock]::Create(
+          "& '$_base' $($_flags -join ' ') @args"
+        )) -Force
+      }
+    }
+    Remove-Variable _tomlPath, _existingCmds, _aliasName, _aliasCmd, _parts, _base, _flagStr, _flags -ErrorAction SilentlyContinue
+  }
+}
