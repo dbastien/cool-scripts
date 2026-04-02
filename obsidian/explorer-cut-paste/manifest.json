@@ -1,0 +1,9 @@
+{
+	"id": "explorer-cut-paste",
+	"name": "Explorer cut/paste",
+	"version": "1.0.0",
+	"minAppVersion": "1.4.0",
+	"description": "Cut, copy, and paste vault files/folders in the file explorer using a small internal clipboard.",
+	"author": "",
+	"isDesktopOnly": false
+}
