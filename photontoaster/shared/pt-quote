@@ -1,0 +1,57 @@
+#!/bin/sh
+# Prints a random quote of the day (cached per calendar day)
+# Called by each shell's init if general.quote_of_the_day is enabled.
+
+quotes_file="${PHOTONTOASTER_QUOTES_FILE:-${PHOTONTOASTER_CONFIG_DIR:-$HOME/.config/photontoaster}/quotes.txt}"
+state_dir="${PHOTONTOASTER_STATE_DIR:-$HOME/.local/state/photontoaster}"
+cache_file="$state_dir/quote-of-the-day"
+
+[ -r "$quotes_file" ] || exit 0
+
+today="$(date +%F)"
+
+print_quote() {
+  q="$1"
+  if command -v lolcat >/dev/null 2>&1; then
+    printf '%s\n' "$q" | lolcat -f
+  else
+    printf '\033[38;2;255;100;255m\357\204\215 \033[38;2;245;245;255m%s\033[0m\n' "$q"
+  fi
+}
+
+# Check cache
+if [ -r "$cache_file" ]; then
+  {
+    IFS= read -r cached_date
+    IFS= read -r quote
+  } < "$cache_file"
+  if [ "$cached_date" = "$today" ]; then
+    if [ -n "$quote" ]; then
+      print_quote "$quote"
+      exit 0
+    fi
+  fi
+fi
+
+# Pick a new random quote
+quote="$(awk '
+  /^[[:space:]]*#/ { next }
+  /^[[:space:]]*$/ { next }
+  { lines[NR] = $0; count++ }
+  END {
+    if (count == 0) exit 1
+    srand()
+    idx = int(rand() * count) + 1
+    n = 0
+    for (i in lines) {
+      n++
+      if (n == idx) { print lines[i]; exit }
+    }
+  }
+' "$quotes_file")"
+
+[ -n "$quote" ] || exit 0
+
+mkdir -p "$state_dir"
+printf '%s\n%s\n' "$today" "$quote" > "$cache_file"
+print_quote "$quote"

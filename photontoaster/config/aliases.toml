@@ -1,0 +1,101 @@
+# PhotonToaster alias definitions — single source of truth
+# Run scripts/generate_aliases.sh to produce per-shell alias files.
+#
+# [color_overrides] — always-on aliases that force color output
+# [eza]             — eza-based directory listing shortcuts
+# [navigation]      — cd shortcuts and shell helpers
+# [git]             — git command shortcuts
+# [tools]           — modern CLI tool aliases (guarded by command existence)
+# [replacements]    — modern replacements for classic commands (guarded)
+# [tmux]            — tmux shortcuts
+# [utility]         — compound utility aliases
+
+[color_overrides]
+bat = "bat --color=always --hyperlink=auto"
+diff = "diff --color=always"
+eza = "eza --icons=always --group-directories-first --git --color=always --hyperlink"
+fd = "fd --color=always --hyperlink"
+grep = "grep --color=always"
+ip = "ip -c"
+jq = "jq -C"
+rg = "rg --color=always --hyperlink-format=default"
+
+# ls/la/ll/lla/lt/tree are set dynamically based on general.ls_tool in config.toml
+
+[navigation]
+".." = "cd .."
+"..." = "cd ../.."
+"...." = "cd ../../.."
+"cd." = "cd .."
+"cd.." = "cd .."
+cls = "clear"
+mkd = "mkdir -pv"
+reload = "exec $SHELL -l"
+v = "$EDITOR"
+
+[git]
+ga = "git add"
+gc = "git commit"
+gcb = "git checkout -b"
+gcm = "git commit -m"
+gco = "git checkout"
+gd = "git diff"
+gl = "git log --oneline --decorate --graph -20"
+glog = "git log --graph --pretty=format:%C(auto)%h%d%x20%s%x20%C(dim)%cr%x20%C(blue)<%an>%C(reset) --all -30"
+gp = "git pull"
+gs = "git status"
+gst = "git status -sb"
+
+[tools]
+bw = "bandwhich"
+bench = "hyperfine"
+br = "broot"
+ch = "cheat"
+calc = "qalc"
+d = "delta --hyperlinks"
+fm = "yazi"
+getgh = "eget"
+gpu = "nvtop"
+hex = "hexyl"
+http = "xh"
+hx = "helix"
+jl = "jless"
+kb = "tldr"
+lg = "lazygit"
+mcpp = "mcp-probe"
+md = "glow"
+nav = "navi"
+richcsv = "rich --csv"
+richj = "rich --json"
+richmd = "rich --markdown"
+samp = "sampler"
+snippets = "pet"
+tl = "tldr"
+todo = "task"
+tv = "television"
+xp = "xplr"
+
+[replacements]
+df = "duf"
+dig = "doggo --color"
+du = "dust --color=always"
+ps = "procs --color=always"
+top = "btop"
+x = "ouch decompress"
+
+[tmux]
+t = "tmux -2"
+ta = "tmux attach -t"
+tls = "tmux ls"
+tn = "tmux new -s"
+
+[utility]
+ccat = "bat --color=always --hyperlink=auto --paging=never --style=header,grid,numbers,changes"
+cronview = "cronboard"
+fda = "fd -HI --color=always --hyperlink"
+ff = "plocate"
+ipbrief = "ip -c -br a"
+j = "z"
+jqp = "jq -C ."
+ports = "ss -tulpn"
+rgf = "rg -n --color=always --hyperlink-format=default"

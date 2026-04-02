@@ -1,0 +1,37 @@
+#!/usr/bin/env pwsh
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+if (-not (Get-Command hyperfine -ErrorAction SilentlyContinue)) {
+  Write-Error "hyperfine is required for benchmarking."
+  exit 1
+}
+
+$jsonOut = $null
+if ($args.Length -ge 2 -and $args[0] -eq "--json") {
+  $jsonOut = $args[1]
+}
+
+$commands = @(
+  "pwsh -NoLogo -NoProfile -Command exit"
+)
+$names = @(
+  "powershell-noprofile"
+)
+
+if ($PROFILE -and (Test-Path -LiteralPath $PROFILE)) {
+  $commands += "pwsh -NoLogo -Command exit"
+  $names += "powershell-profile"
+}
+
+$hyperfineArgs = @("--warmup", "3", "--min-runs", "10")
+for ($i = 0; $i -lt $commands.Count; $i++) {
+  $hyperfineArgs += @("-n", $names[$i], $commands[$i])
+}
+if ($jsonOut) {
+  $dir = Split-Path -Parent $jsonOut
+  if ($dir) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+  $hyperfineArgs += @("--export-json", $jsonOut)
+}
+
+& hyperfine @hyperfineArgs

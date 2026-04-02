@@ -1,0 +1,111 @@
+#!/bin/sh
+# Benchmark interactive startup time for supported shells.
+# Requires: hyperfine
+#
+# Usage:
+#   scripts/pt-bench-startup
+#   scripts/pt-bench-startup --json docs/benchmarks/startup-latest.json
+#   scripts/pt-bench-startup --json out.json --markdown docs/benchmarks/startup-latest.md
+
+set -eu
+
+JSON_OUT=""
+MD_OUT=""
+
+while [ "$#" -gt 0 ]; do
+  case "${1:-}" in
+    --json)
+      JSON_OUT="${2:-}"
+      shift 2
+      ;;
+    --markdown)
+      MD_OUT="${2:-}"
+      shift 2
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      exit 2
+      ;;
+  esac
+done
+
+if ! command -v hyperfine >/dev/null 2>&1; then
+  echo "Error: hyperfine is required. Install it first." >&2
+  exit 1
+fi
+
+tmp_json="$(mktemp)"
+cleanup() { rm -f "$tmp_json"; }
+trap cleanup EXIT INT TERM
+
+cmds=""
+labels=""
+has_any=0
+
+add_case() {
+  labels="$labels -n '$1'"
+  cmds="$cmds '$2'"
+  has_any=1
+}
+
+for sh in zsh bash fish; do
+  if command -v "$sh" >/dev/null 2>&1; then
+    add_case "$sh" "$sh -i -c exit"
+  fi
+done
+
+if command -v nu >/dev/null 2>&1; then
+  add_case "nushell" "nu -c exit"
+fi
+
+if command -v pwsh >/dev/null 2>&1; then
+  add_case "powershell-noprofile" "pwsh -NoLogo -NoProfile -Command exit"
+  if [ -n "${PROFILE:-}" ] && [ -r "${PROFILE:-}" ]; then
+    add_case "powershell-profile" "pwsh -NoLogo -Command exit"
+  fi
+fi
+
+if [ "$has_any" -eq 0 ]; then
+  echo "No supported shells found." >&2
+  exit 1
+fi
+
+echo "Benchmarking shell startup..."
+echo ""
+eval "hyperfine --warmup 3 --min-runs 10 $labels $cmds --export-json '$tmp_json'"
+
+if [ -n "$JSON_OUT" ]; then
+  mkdir -p "$(dirname "$JSON_OUT")"
+  cp "$tmp_json" "$JSON_OUT"
+  echo ""
+  echo "Saved JSON benchmark to: $JSON_OUT"
+fi
+
+if [ -n "$MD_OUT" ]; then
+  if command -v python3 >/dev/null 2>&1; then
+    mkdir -p "$(dirname "$MD_OUT")"
+    python3 - "$tmp_json" "$MD_OUT" <<'PY'
+import json
+import sys
+from datetime import datetime
+
+src, out = sys.argv[1], sys.argv[2]
+data = json.load(open(src, "r", encoding="utf-8"))
+results = data.get("results", [])
+with open(out, "w", encoding="utf-8") as f:
+    f.write("# PhotonToaster Startup Benchmark\n\n")
+    f.write(f"- Generated: {datetime.utcnow().isoformat()}Z\n")
+    f.write("- Tool: hyperfine\n\n")
+    f.write("| Shell | Mean (ms) | Min (ms) | Max (ms) |\n")
+    f.write("|---|---:|---:|---:|\n")
+    for r in results:
+      mean = r.get("mean", 0.0) * 1000
+      min_ = r.get("min", 0.0) * 1000
+      max_ = r.get("max", 0.0) * 1000
+      f.write(f"| {r.get('command', 'unknown')} | {mean:.1f} | {min_:.1f} | {max_:.1f} |\n")
+print(f"Saved markdown benchmark to: {out}")
+PY
+  else
+    echo "Skipping markdown export (python3 not available)." >&2
+  fi
+fi

@@ -1,26 +1,22 @@
 # cool-scripts
 
-## Install Toasty (Windows)
+## Install PhotonToaster (Windows / cross-platform)
 
-**Toasty** is the PowerShell toolkit under [`powershell/toasty/`](powershell/toasty/). The default install creates a directory junction from `~/.config/toasty` to the repo, adds `cli/` to your PATH, and optionally pulls in common **native CLI tools via winget** (see [`powershell/toasty/winget/WingetManifest.ps1`](powershell/toasty/winget/WingetManifest.ps1): ripgrep, bat, fd, eza, fzf, zoxide, jq, and the Extended tier unless you opt out).
+**PhotonToaster** is the cross-shell setup toolkit under [`photontoaster/`](photontoaster/). It supports PowerShell, zsh, bash, fish, and nushell. The default install copies the runtime into `~/.config/photontoaster`, installs missing CLI tools via your system package manager, and patches your `$PROFILE`.
 
-1. Install [PowerShell 7+](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows) (`pwsh`) if you do not already have it. You also need **winget** (App Installer from the Microsoft Store is the usual source).
+1. Install [PowerShell 7+](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows) (`pwsh`) if you do not already have it.
 2. Clone this repository and open a terminal.
 3. Run:
 
 ```powershell
-pwsh -File .\powershell\toasty\install.ps1
+pwsh -File .\photontoaster\install.ps1
 ```
 
-This creates a junction `~/.config/toasty` -> the repo, adds `cli/` to PATH, seeds config, and patches your `$PROFILE`. Open a new terminal and you're done.
+This copies the PhotonToaster tree to `~/.config/photontoaster`, installs tools, seeds config, and patches your `$PROFILE`. Open a new terminal and you're done.
 
-Useful flags: **`-MinimalExtern`** (smaller winget set), **`-WhatIf`** (dry run), **`-Force`**, optional GUI/extension switches (see [`powershell/toasty/README.md`](powershell/toasty/README.md)).
+Features: segment-driven prompt (pills/minimal/plain), TOML-driven config with color schemes, "did you mean?" typo suggestions, fzf keybindings (Ctrl+R/T, Alt+C), atuin/PSReadLine history tiering, auto-ls, zoxide, Terminal-Icons, startup profiling, quote of the day, and more.
 
-Layout, config, and profile hooks are documented in [`powershell/toasty/README.md`](powershell/toasty/README.md).
-
-## Linux / zsh
-
-Zsh theme, prompts, and related files live under [`linux/photontoaster/`](linux/photontoaster/). On Ubuntu under WSL, see the installer script in that folder.
+Layout, config, and profile hooks are documented inside `photontoaster/`.
 
 ## Other folders
 

@@ -1,0 +1,322 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_DIR="${PHOTONTOASTER_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/photontoaster}"
+
+prompt_shell() {
+  echo "Choose shell to configure:"
+  echo "  1) zsh"
+  echo "  2) bash"
+  echo "  3) fish"
+  echo "  4) nushell"
+  echo "  5) powershell"
+  printf "Selection [1-5]: "
+  read -r choice
+  case "$choice" in
+    1) SELECTED_SHELL="zsh" ;;
+    2) SELECTED_SHELL="bash" ;;
+    3) SELECTED_SHELL="fish" ;;
+    4) SELECTED_SHELL="nushell" ;;
+    5) SELECTED_SHELL="powershell" ;;
+    *) echo "Invalid selection"; exit 1 ;;
+  esac
+}
+
+strip_block() {
+  local file="$1"
+  local start="$2"
+  local end="$3"
+  [[ -f "$file" ]] || return 0
+  awk -v s="$start" -v e="$end" '
+    $0 == s { skip=1; next }
+    $0 == e { skip=0; next }
+    !skip { print }
+  ' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+}
+
+append_line_once() {
+  local file="$1"
+  local line="$2"
+  touch "$file"
+  grep -Fqx "$line" "$file" || printf '%s\n' "$line" >> "$file"
+}
+
+ensure_sudo_ticket() {
+  if [[ "${_PT_SUDO_READY:-0}" == "1" ]]; then
+    return 0
+  fi
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "sudo is required for privileged installer steps."
+    return 1
+  fi
+  sudo -v
+  _PT_SUDO_READY=1
+}
+
+detect_package_manager() {
+  if command -v brew >/dev/null 2>&1; then
+    printf 'brew'
+  elif command -v pacman >/dev/null 2>&1; then
+    printf 'pacman'
+  elif command -v dnf >/dev/null 2>&1; then
+    printf 'dnf'
+  elif command -v apt >/dev/null 2>&1; then
+    printf 'apt'
+  fi
+}
+
+install_tools() {
+  local manifest="$ROOT_DIR/config/tools.tsv"
+  [[ -r "$manifest" ]] || { echo "No tools manifest at $manifest; skipping tool install."; return 0; }
+
+  local pm
+  pm="$(detect_package_manager || true)"
+  [[ -n "$pm" ]] || { echo "No supported package manager found (brew/pacman/dnf/apt); skipping tool install."; return 0; }
+
+  local -a pkgs=()
+  local already_present=0 unavailable=0
+  local binary brew pacman dnf apt winget scoop choco pkg
+
+  while IFS=$'\t' read -r binary brew pacman dnf apt winget scoop choco; do
+    [[ -z "$binary" || "$binary" == "binary" || "$binary" == \#* ]] && continue
+
+    if command -v "$binary" >/dev/null 2>&1; then
+      already_present=$((already_present + 1))
+      continue
+    fi
+
+    pkg=""
+    case "$pm" in
+      brew) pkg="$brew" ;;
+      pacman) pkg="$pacman" ;;
+      dnf) pkg="$dnf" ;;
+      apt) pkg="$apt" ;;
+    esac
+
+    if [[ -z "$pkg" || "$pkg" == "-" ]]; then
+      unavailable=$((unavailable + 1))
+      continue
+    fi
+
+    pkgs+=("$pkg")
+  done < "$manifest"
+
+  if ((${#pkgs[@]} == 0)); then
+    echo "All available tools are already installed for $pm. (present: $already_present, unavailable: $unavailable)"
+    return 0
+  fi
+
+  echo "Installing ${#pkgs[@]} missing tools using $pm..."
+  case "$pm" in
+    brew)
+      brew install "${pkgs[@]}"
+      ;;
+    pacman)
+      ensure_sudo_ticket
+      sudo pacman -S --needed --noconfirm "${pkgs[@]}"
+      ;;
+    dnf)
+      ensure_sudo_ticket
+      sudo dnf install -y "${pkgs[@]}"
+      ;;
+    apt)
+      ensure_sudo_ticket
+      sudo apt install -y "${pkgs[@]}"
+      ;;
+  esac
+
+  echo "Tool install summary: installed ${#pkgs[@]}, already present $already_present, unavailable $unavailable."
+}
+
+install_tree() {
+  mkdir -p "$TARGET_DIR"
+
+  local -a runtime_dirs=(bash zsh fish nushell powershell shared scripts)
+  for d in "${runtime_dirs[@]}"; do
+    [[ -d "$ROOT_DIR/$d" ]] || continue
+    mkdir -p "$TARGET_DIR/$d"
+    rsync -a --delete "$ROOT_DIR/$d/" "$TARGET_DIR/$d/"
+  done
+
+  # Config files go directly into $TARGET_DIR (not a config/ subdir)
+  for f in "$ROOT_DIR"/config/*; do
+    [[ -f "$f" ]] || continue
+    cp "$f" "$TARGET_DIR/$(basename "$f")"
+  done
+
+  chmod +x "$TARGET_DIR/scripts/generate_aliases.sh" \
+           "$TARGET_DIR/scripts/pt-selfcheck" \
+           "$TARGET_DIR/scripts/pt-bench-startup" \
+           "$TARGET_DIR/scripts/build-flag-cache.sh" \
+           "$TARGET_DIR/shared/pt-config-read" \
+           "$TARGET_DIR/shared/pt-quote"
+  bash "$TARGET_DIR/scripts/generate_aliases.sh"
+
+  echo "Building flag cache..."
+  PHOTONTOASTER_CONFIG_DIR="$TARGET_DIR" bash "$TARGET_DIR/scripts/build-flag-cache.sh"
+  [[ -f "$TARGET_DIR/config.toml" ]] || cp "$TARGET_DIR/config.toml.default" "$TARGET_DIR/config.toml"
+}
+
+install_for_bash() {
+  local rc="$HOME/.bashrc"
+  local s="# >>> PhotonToaster >>>"
+  local e="# <<< PhotonToaster <<<"
+  strip_block "$rc" "$s" "$e"
+  cat >> "$rc" <<EOF
+$s
+export PHOTONTOASTER_CONFIG_DIR="$TARGET_DIR"
+source "\$PHOTONTOASTER_CONFIG_DIR/shared/env.sh"
+source "\$PHOTONTOASTER_CONFIG_DIR/shared/aliases.sh"
+source "\$PHOTONTOASTER_CONFIG_DIR/bash/init.bash"
+source "\$PHOTONTOASTER_CONFIG_DIR/bash/prompt.bash"
+source "\$PHOTONTOASTER_CONFIG_DIR/bash/integrations.bash"
+source "\$PHOTONTOASTER_CONFIG_DIR/bash/completions.bash"
+source "\$PHOTONTOASTER_CONFIG_DIR/bash/aws.bash"
+$e
+EOF
+}
+
+install_for_zsh() {
+  local rc="$HOME/.zshrc"
+  local s="# >>> PhotonToaster >>>"
+  local e="# <<< PhotonToaster <<<"
+  strip_block "$rc" "$s" "$e"
+  cat >> "$rc" <<EOF
+$s
+export PHOTONTOASTER_CONFIG_DIR="$TARGET_DIR"
+source "\$PHOTONTOASTER_CONFIG_DIR/shared/env.sh"
+source "\$PHOTONTOASTER_CONFIG_DIR/shared/aliases.sh"
+source "\$PHOTONTOASTER_CONFIG_DIR/zsh/bootstrap.zsh"
+$e
+EOF
+}
+
+install_for_fish() {
+  local confd="$HOME/.config/fish/conf.d"
+  local file="$confd/photontoaster.fish"
+  mkdir -p "$confd"
+  cat > "$file" <<EOF
+set -gx PHOTONTOASTER_CONFIG_DIR "$TARGET_DIR"
+set -gx PHOTONTOASTER_STATE_DIR "\$HOME/.local/state/photontoaster"
+set -gx PHOTONTOASTER_QUOTES_FILE "\$PHOTONTOASTER_CONFIG_DIR/quotes.txt"
+set -gx EDITOR micro
+set -gx VISUAL micro
+set -gx PAGER less
+set -gx LESS "-FRX"
+set -gx CLICOLOR 1
+set -gx COLORTERM truecolor
+source "\$PHOTONTOASTER_CONFIG_DIR/fish/aliases.fish"
+source "\$PHOTONTOASTER_CONFIG_DIR/fish/init.fish"
+source "\$PHOTONTOASTER_CONFIG_DIR/fish/colors.fish"
+source "\$PHOTONTOASTER_CONFIG_DIR/fish/prompt.fish"
+source "\$PHOTONTOASTER_CONFIG_DIR/fish/integrations.fish"
+source "\$PHOTONTOASTER_CONFIG_DIR/fish/aws.fish"
+EOF
+}
+
+install_for_nushell() {
+  local rc="$HOME/.config/nushell/config.nu"
+  mkdir -p "$(dirname "$rc")"
+  touch "$rc"
+  local s="# >>> PhotonToaster >>>"
+  local e="# <<< PhotonToaster <<<"
+  strip_block "$rc" "$s" "$e"
+  cat >> "$rc" <<EOF
+$s
+\$env.PHOTONTOASTER_CONFIG_DIR = "$TARGET_DIR"
+\$env.PHOTONTOASTER_STATE_DIR = "\$nu.home-path/.local/state/photontoaster"
+\$env.PHOTONTOASTER_QUOTES_FILE = "\$env.PHOTONTOASTER_CONFIG_DIR/quotes.txt"
+\$env.EDITOR = "micro"
+\$env.VISUAL = "micro"
+\$env.PAGER = "less"
+\$env.LESS = "-FRX"
+\$env.CLICOLOR = "1"
+\$env.COLORTERM = "truecolor"
+source "\$env.PHOTONTOASTER_CONFIG_DIR/nushell/aliases.nu"
+source "\$env.PHOTONTOASTER_CONFIG_DIR/nushell/init.nu"
+source "\$env.PHOTONTOASTER_CONFIG_DIR/nushell/prompt.nu"
+source "\$env.PHOTONTOASTER_CONFIG_DIR/nushell/integrations.nu"
+$e
+EOF
+}
+
+install_for_powershell() {
+  local rc="$HOME/.config/powershell/Microsoft.PowerShell_profile.ps1"
+  mkdir -p "$(dirname "$rc")"
+  touch "$rc"
+  local s="# >>> PhotonToaster >>>"
+  local e="# <<< PhotonToaster <<<"
+  strip_block "$rc" "$s" "$e"
+  cat >> "$rc" <<EOF
+$s
+\$env:PHOTONTOASTER_CONFIG_DIR = "$TARGET_DIR"
+. "\$env:PHOTONTOASTER_CONFIG_DIR/shared/env.ps1"
+. "\$env:PHOTONTOASTER_CONFIG_DIR/powershell/aliases.ps1"
+. "\$env:PHOTONTOASTER_CONFIG_DIR/powershell/init.ps1"
+. "\$env:PHOTONTOASTER_CONFIG_DIR/powershell/prompt.ps1"
+. "\$env:PHOTONTOASTER_CONFIG_DIR/powershell/integrations.ps1"
+. "\$env:PHOTONTOASTER_CONFIG_DIR/powershell/aws.ps1"
+$e
+EOF
+}
+
+offer_shell_switch() {
+  local target="$1"
+  local shell_bin=""
+  local shells_file="/etc/shells"
+  case "$target" in
+    zsh) shell_bin="$(command -v zsh || true)" ;;
+    bash) shell_bin="$(command -v bash || true)" ;;
+    fish) shell_bin="$(command -v fish || true)" ;;
+    nushell) shell_bin="$(command -v nu || true)" ;;
+    powershell) shell_bin="$(command -v pwsh || true)" ;;
+  esac
+  [[ -n "$shell_bin" ]] || { echo "$target is not installed; skipping chsh."; return 0; }
+
+  local current_shell
+  current_shell="$(getent passwd "${USER:-$(id -un)}" 2>/dev/null | cut -d: -f7 || true)"
+  if [[ "$current_shell" == "$shell_bin" ]]; then
+    echo "Login shell is already $shell_bin."
+    return 0
+  fi
+
+  if ! command -v chsh >/dev/null 2>&1; then
+    echo "chsh not found; set your login shell manually to: $shell_bin"
+    return 0
+  fi
+
+  local needs_etc=0
+  if [[ -r "$shells_file" ]] && ! grep -Fxq "$shell_bin" "$shells_file"; then
+    needs_etc=1
+  fi
+
+  ensure_sudo_ticket || return 0
+  echo "Setting login shell to $shell_bin..."
+  if (( needs_etc )); then
+    sudo sh -c "echo '$shell_bin' >> '$shells_file' && chsh -s '$shell_bin' '${USER:-$(id -un)}'" || {
+      echo "Could not update login shell. Run manually:"
+      echo "  sudo sh -c \"echo '$shell_bin' >> $shells_file\" && chsh -s '$shell_bin'"
+      return 0
+    }
+  else
+    sudo chsh -s "$shell_bin" "${USER:-$(id -un)}" || true
+  fi
+}
+
+prompt_shell
+echo "Installing PhotonToaster into: $TARGET_DIR"
+install_tools
+install_tree
+
+case "$SELECTED_SHELL" in
+  zsh) install_for_zsh ;;
+  bash) install_for_bash ;;
+  fish) install_for_fish ;;
+  nushell) install_for_nushell ;;
+  powershell) install_for_powershell ;;
+esac
+
+offer_shell_switch "$SELECTED_SHELL"
+echo "Install complete for $SELECTED_SHELL."
+echo "Open a new shell session to apply changes."

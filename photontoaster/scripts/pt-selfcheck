@@ -1,0 +1,76 @@
+#!/bin/sh
+# PhotonToaster quick self-checks for shell config and helper scripts.
+#
+# Usage: scripts/pt-selfcheck
+
+set -eu
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+ROOT_DIR="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
+PASS_COUNT=0
+FAIL_COUNT=0
+SKIP_COUNT=0
+
+ok() {
+  PASS_COUNT=$((PASS_COUNT + 1))
+  printf '[PASS] %s\n' "$1"
+}
+
+fail() {
+  FAIL_COUNT=$((FAIL_COUNT + 1))
+  printf '[FAIL] %s\n' "$1"
+}
+
+skip() {
+  SKIP_COUNT=$((SKIP_COUNT + 1))
+  printf '[SKIP] %s\n' "$1"
+}
+
+run_check() {
+  _desc="$1"
+  shift
+  if "$@"; then
+    ok "$_desc"
+  else
+    fail "$_desc"
+  fi
+}
+
+run_optional_check() {
+  _bin="$1"
+  _desc="$2"
+  shift 2
+  if command -v "$_bin" >/dev/null 2>&1; then
+    run_check "$_desc" "$@"
+  else
+    skip "$_desc (missing $_bin)"
+  fi
+}
+
+run_check "shared/pt-config-read syntax" sh -n "$ROOT_DIR/shared/pt-config-read"
+run_check "shared/pt-quote syntax" sh -n "$ROOT_DIR/shared/pt-quote"
+run_check "scripts/pt-bench-startup syntax" sh -n "$ROOT_DIR/scripts/pt-bench-startup"
+run_check "scripts/generate_aliases.sh syntax" bash -n "$ROOT_DIR/scripts/generate_aliases.sh"
+run_check "bash init syntax" bash -n "$ROOT_DIR/bash/init.bash"
+
+run_optional_check zsh "zsh init syntax" zsh -n "$ROOT_DIR/zsh/init.zsh"
+run_optional_check zsh "zsh bootstrap syntax" zsh -n "$ROOT_DIR/zsh/bootstrap.zsh"
+run_optional_check zsh "zsh prompt syntax" zsh -n "$ROOT_DIR/zsh/prompt.zsh"
+run_optional_check zsh "zsh integrations syntax" zsh -n "$ROOT_DIR/zsh/integrations.zsh"
+run_optional_check fish "fish init syntax" fish -n "$ROOT_DIR/fish/init.fish"
+run_optional_check nu "nushell init parse" nu -c "source \"$ROOT_DIR/nushell/init.nu\""
+run_optional_check pwsh "powershell init parse" pwsh -NoProfile -Command ". \"$ROOT_DIR/powershell/init.ps1\""
+run_optional_check pwsh "powershell aliases parse" pwsh -NoProfile -Command ". \"$ROOT_DIR/powershell/aliases.ps1\""
+run_optional_check pwsh "powershell prompt parse" pwsh -NoProfile -Command ". \"$ROOT_DIR/powershell/prompt.ps1\""
+run_optional_check pwsh "powershell integrations parse" pwsh -NoProfile -Command ". \"$ROOT_DIR/powershell/integrations.ps1\""
+run_optional_check pwsh "powershell aws parse" pwsh -NoProfile -Command ". \"$ROOT_DIR/powershell/aws.ps1\""
+run_optional_check pwsh "powershell shared env parse" pwsh -NoProfile -Command ". \"$ROOT_DIR/shared/env.ps1\""
+run_optional_check pwsh "powershell prompt smoke" pwsh -NoProfile -Command ". \"$ROOT_DIR/shared/env.ps1\"; . \"$ROOT_DIR/powershell/init.ps1\"; . \"$ROOT_DIR/powershell/integrations.ps1\"; . \"$ROOT_DIR/powershell/prompt.ps1\"; prompt | Out-Null"
+
+run_check "alias generation" bash "$ROOT_DIR/scripts/generate_aliases.sh"
+
+printf '\nSummary: %s passed, %s failed, %s skipped\n' "$PASS_COUNT" "$FAIL_COUNT" "$SKIP_COUNT"
+
+if [ "$FAIL_COUNT" -ne 0 ]; then
+  exit 1
+fi

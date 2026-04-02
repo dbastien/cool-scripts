@@ -1,0 +1,299 @@
+# PhotonToaster tool help reference
+# Documents how each tool exposes help/usage info and flag formatting style.
+# Used by build-flag-cache.sh to extract flags and descriptions.
+#
+# Fields:
+#   help_cmd    = primary help invocation (most tools)
+#   help_alt    = fallback if help_cmd fails
+#   man         = man page name (if different from binary)
+#   flag_style  = "gnu" (--long, -s) | "go" (-long) | "mixed"
+#   description = one-liner for humans
+
+[rg]
+help_cmd = "rg --help"
+man = "rg"
+flag_style = "gnu"
+description = "Recursively search file contents with regex"
+
+[fd]
+help_cmd = "fd --help"
+man = "fd"
+flag_style = "gnu"
+description = "Fast file finder (find replacement)"
+
+[bat]
+help_cmd = "bat --help"
+man = "bat"
+flag_style = "gnu"
+description = "Cat clone with syntax highlighting and git integration"
+
+[eza]
+help_cmd = "eza --help"
+man = "eza"
+flag_style = "gnu"
+description = "Modern ls replacement with icons, git awareness, and tree view"
+
+[curl]
+help_cmd = "curl --help all"
+help_alt = "curl --help"
+man = "curl"
+flag_style = "gnu"
+description = "Transfer data from or to a server"
+
+[git]
+help_cmd = "git --help"
+man = "git"
+flag_style = "gnu"
+description = "Distributed version control system"
+
+[docker]
+help_cmd = "docker --help"
+man = "docker"
+flag_style = "gnu"
+description = "Container runtime and image management"
+
+[jq]
+help_cmd = "jq --help"
+man = "jq"
+flag_style = "gnu"
+description = "Command-line JSON processor"
+
+[delta]
+help_cmd = "delta --help"
+man = "delta"
+flag_style = "gnu"
+description = "Syntax-highlighting pager for git, diff, grep output"
+
+[hexyl]
+help_cmd = "hexyl --help"
+flag_style = "gnu"
+description = "Hex viewer with colored output"
+
+[dust]
+help_cmd = "dust --help"
+flag_style = "gnu"
+description = "Intuitive disk usage viewer (du replacement)"
+
+[duf]
+help_cmd = "duf --help"
+flag_style = "gnu"
+description = "Disk usage/free utility with nice output"
+
+[procs]
+help_cmd = "procs --help"
+flag_style = "gnu"
+description = "Modern ps replacement with color and tree view"
+
+[btop]
+help_cmd = "btop --help"
+flag_style = "gnu"
+description = "Resource monitor (CPU, memory, disks, network, processes)"
+
+[xh]
+help_cmd = "xh --help"
+flag_style = "gnu"
+description = "Friendly HTTP client (httpie-compatible, Rust)"
+
+[hyperfine]
+help_cmd = "hyperfine --help"
+flag_style = "gnu"
+description = "Command-line benchmarking tool"
+
+[ouch]
+help_cmd = "ouch --help"
+flag_style = "gnu"
+description = "Compress and decompress files (smart format detection)"
+
+[lazygit]
+help_cmd = "lazygit --help"
+flag_style = "gnu"
+description = "Terminal UI for git commands"
+
+[ncdu]
+help_cmd = "ncdu --help"
+flag_style = "gnu"
+description = "NCurses disk usage analyzer"
+
+[doggo]
+help_cmd = "doggo --help"
+flag_style = "gnu"
+description = "DNS client with colorful output"
+
+[glow]
+help_cmd = "glow --help"
+flag_style = "gnu"
+description = "Render markdown on the terminal with glamour"
+
+[broot]
+help_cmd = "broot --help"
+flag_style = "gnu"
+description = "Interactive tree view, file manager, and launcher"
+
+[yazi]
+help_cmd = "yazi --help"
+flag_style = "gnu"
+description = "Blazing fast terminal file manager"
+
+[zoxide]
+help_cmd = "zoxide --help"
+flag_style = "gnu"
+description = "Smarter cd that learns your habits"
+
+[atuin]
+help_cmd = "atuin --help"
+flag_style = "gnu"
+description = "Magical shell history with sync, search, and stats"
+
+[tmux]
+help_cmd = "tmux -h"
+help_alt = "tmux list-commands"
+man = "tmux"
+flag_style = "gnu"
+description = "Terminal multiplexer"
+
+[direnv]
+help_cmd = "direnv --help"
+flag_style = "gnu"
+description = "Per-directory environment variables"
+
+[fzf]
+help_cmd = "fzf --help"
+man = "fzf"
+flag_style = "gnu"
+description = "General-purpose fuzzy finder"
+
+[cheat]
+help_cmd = "cheat --help"
+flag_style = "gnu"
+description = "Community-driven cheatsheets for CLI tools"
+
+[navi]
+help_cmd = "navi --help"
+flag_style = "gnu"
+description = "Interactive cheatsheet navigator"
+
+[tldr]
+help_cmd = "tldr --help"
+flag_style = "gnu"
+description = "Simplified, community-driven man pages"
+
+[micro]
+help_cmd = "micro --help"
+flag_style = "gnu"
+description = "Modern and intuitive terminal text editor"
+
+[lsd]
+help_cmd = "lsd --help"
+flag_style = "gnu"
+description = "LSDeluxe — ls with colors, icons, and tree view"
+
+[vivid]
+help_cmd = "vivid --help"
+flag_style = "gnu"
+description = "LS_COLORS generator with predefined themes"
+
+[bandwhich]
+help_cmd = "bandwhich --help"
+flag_style = "gnu"
+description = "Per-process bandwidth utilization monitor"
+
+[fastfetch]
+help_cmd = "fastfetch --help"
+flag_style = "gnu"
+description = "Fast system information tool (neofetch replacement)"
+
+[ls]
+help_cmd = "ls --help"
+man = "ls"
+flag_style = "gnu"
+description = "List directory contents"
+
+[grep]
+help_cmd = "grep --help"
+man = "grep"
+flag_style = "gnu"
+description = "Search text with patterns"
+
+[tar]
+help_cmd = "tar --help"
+man = "tar"
+flag_style = "gnu"
+description = "Archive utility"
+
+[ssh]
+help_cmd = "ssh -h"
+man = "ssh"
+flag_style = "gnu"
+description = "Secure shell client"
+
+[rsync]
+help_cmd = "rsync --help"
+man = "rsync"
+flag_style = "gnu"
+description = "Fast, versatile remote/local file sync"
+
+[chmod]
+man = "chmod"
+flag_style = "gnu"
+description = "Change file mode bits"
+
+[chown]
+man = "chown"
+flag_style = "gnu"
+description = "Change file owner and group"
+
+[cp]
+help_cmd = "cp --help"
+man = "cp"
+flag_style = "gnu"
+description = "Copy files and directories"
+
+[mv]
+help_cmd = "mv --help"
+man = "mv"
+flag_style = "gnu"
+description = "Move/rename files"
+
+[rm]
+help_cmd = "rm --help"
+man = "rm"
+flag_style = "gnu"
+description = "Remove files or directories"
+
+[mkdir]
+help_cmd = "mkdir --help"
+man = "mkdir"
+flag_style = "gnu"
+description = "Create directories"
+
+[npm]
+help_cmd = "npm help"
+flag_style = "mixed"
+description = "Node.js package manager"
+
+[pip]
+help_cmd = "pip --help"
+flag_style = "gnu"
+description = "Python package installer"
+
+[aws]
+help_cmd = "aws help"
+flag_style = "gnu"
+description = "AWS command-line interface"
+
+[kubectl]
+help_cmd = "kubectl --help"
+flag_style = "gnu"
+description = "Kubernetes cluster management CLI"
+
+[systemctl]
+help_cmd = "systemctl --help"
+man = "systemctl"
+flag_style = "gnu"
+description = "Control the systemd system and service manager"
+
+[journalctl]
+help_cmd = "journalctl --help"
+man = "journalctl"
+flag_style = "gnu"
+description = "Query the systemd journal"

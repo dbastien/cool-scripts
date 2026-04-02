@@ -1,0 +1,75 @@
+# PhotonToaster configuration
+# Edit this file to customize your shell experience.
+# Changes take effect on next shell startup (or run: reload)
+
+[general]
+quote_of_the_day = true
+typo_aliases = true
+suffix_aliases = true
+auto_ls = true
+auto_venv = true
+fastfetch = true
+weather = true
+lazy_integrations = true
+everything_integration = true
+did_you_mean = true
+fzf_bindings = true
+atuin = true
+update_check = true
+# Live flag validation highlight (red line for invalid known flags)
+flag_highlight = true
+# Quietly learn flags from --help/man and cache them (refreshes on package upgrade)
+flag_autolearn = true
+
+# Directory listing tool: "eza" | "lsd" | "broot" | "ls"
+ls_tool = "eza"
+# Replace cd with zoxide's z (frecency-based directory jumping)
+cd_to_z = true
+
+[aws]
+# profile = "default"
+auto_login = true
+auto_login_interval_hours = 8
+# Prompt AWS status cache TTL in seconds (large on purpose to avoid frequent checks)
+prompt_status_interval_seconds = 21600
+
+[prompt]
+# Theme: "pills" | "pills-merged" | "plain" | "minimal"
+style = "pills-merged"
+# Preset: "minimal" | "balanced" | "maximal"
+preset = "balanced"
+show_rprompt = true
+show_window_title = false
+
+# Segment layout: comma-separated. Remove any you don't want.
+# Available: user, path, git, git-short, venv, venv-short, jobs, ssh, aws, aws-short, status, duration, time, time-short
+# Example: right = "time" (time only, no check/x or duration)
+left = "aws-short,venv-short,git-short,path"
+right = "duration,time-short"
+
+# Icon toggles
+icon_user = true
+icon_path = true
+# When true, icons use a bright color distinct from segment text
+colored_icons = false
+
+# Command duration: only show if command took longer than this (seconds)
+duration_threshold = 3
+
+[colors]
+# Preset: "default" | "astra" | "catppuccin" | "cracktro" | "dracula" | "pastels" | "solarized" | "terminal"
+scheme = "astra"
+# Override individual colors (R;G;B format). Uncomment to customize:
+# blue = "110;155;245"
+# violet = "150;125;255"
+# ok = "80;250;120"
+# err = "255;90;90"
+# warn = "255;220;60"
+# white = "245;245;255"
+# dark = "24;28;40"
+# accent = "255;100;255"
+# ssh = "255;165;0"
+# venv = "60;180;75"
+
+[debug]
+profile_startup = false
