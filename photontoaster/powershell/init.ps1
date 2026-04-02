@@ -40,6 +40,22 @@ if (-not $script:PTConfig) {
   $script:PTConfig = Get-PTConfig
 }
 
+# zoxide + cd→z early (matches bash/zsh/fish init) so cd works before first prompt.
+# Use global: so integrations.ps1 (separate dot-sourced script scope) can skip duplicate init.
+$global:PTZoxideEagerInit = $false
+if (Get-PTBool -Key 'general.cd_to_z' -Default $true) {
+  if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    try {
+      Invoke-Expression (& zoxide init powershell | Out-String)
+      $_zoxidePtPathEarly = Join-Path $PSScriptRoot 'lib\zoxide-pt.ps1'
+      if (Test-Path -LiteralPath $_zoxidePtPathEarly) {
+        . $_zoxidePtPathEarly -Config $script:PTConfig
+      }
+      $global:PTZoxideEagerInit = $true
+    } catch { }
+  }
+}
+
 function Get-PTBool {
   param(
     [Parameter(Mandatory = $true)][string]$Key,

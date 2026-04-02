@@ -84,6 +84,24 @@ switch $_ls_tool
         abbr -a tree -- 'eza --tree'
 end
 
+# Auto-ls on directory change (skip initial PWD event so login dir is not listed twice).
+set -l _auto_ls_enabled (set -q _pt_config_general_auto_ls; and echo $_pt_config_general_auto_ls; or echo true)
+if test "$_auto_ls_enabled" = true
+    function _pt_auto_ls_on_pwd --on-variable PWD
+        status --is-command-substitution
+        and return
+        if not set -q _pt_auto_ls_ready
+            set -g _pt_auto_ls_ready 1
+            return
+        end
+        if type -q eza
+            eza --icons=always --group-directories-first --color=always
+        else
+            ls -A
+        end
+    end
+end
+
 if not set -q PHOTONTOASTER_SESSION_INIT
     set -gx PHOTONTOASTER_SESSION_INIT 1
 

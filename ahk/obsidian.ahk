@@ -1,1 +1,0 @@
-﻿RControl & o::Run "C:\Program Files\Obsidian\Obsidian.exe everything\Welcome"

@@ -52,13 +52,15 @@ function Initialize-PTIntegrations {
   if ($script:PTIntegrationsReady) { return }
   $script:PTIntegrationsReady = $true
 
-  if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    try {
-      Invoke-Expression (& zoxide init powershell | Out-String)
-    } catch {}
-    $_zoxidePtPath = Join-Path $PSScriptRoot 'lib\zoxide-pt.ps1'
-    if (Test-Path -LiteralPath $_zoxidePtPath) {
-      . $_zoxidePtPath -Config $script:PTConfig
+  if (-not $global:PTZoxideEagerInit) {
+    if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+      try {
+        Invoke-Expression (& zoxide init powershell | Out-String)
+      } catch {}
+      $_zoxidePtPath = Join-Path $PSScriptRoot 'lib\zoxide-pt.ps1'
+      if (Test-Path -LiteralPath $_zoxidePtPath) {
+        . $_zoxidePtPath -Config $script:PTConfig
+      }
     }
   }
 

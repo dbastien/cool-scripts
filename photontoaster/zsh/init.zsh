@@ -165,7 +165,11 @@ fi
 # Optional auto-ls on directory change.
 if [[ "${_pt_config[general.auto_ls]:-true}" == "true" ]]; then
   _pt_auto_ls() {
-    eza --icons=always --group-directories-first --color=always 2>/dev/null || ls
+    if (( $+commands[eza] )); then
+      eza --icons=always --group-directories-first --color=always 2>/dev/null || command ls -A
+    else
+      command ls -A --color=auto 2>/dev/null || command ls -A
+    fi
   }
   add-zsh-hook chpwd _pt_auto_ls
 fi

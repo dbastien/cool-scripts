@@ -61,6 +61,26 @@ match $_ls_tool {
   }
 }
 
+# Auto-ls when PWD changes (aligned with PowerShell prompt + bash PROMPT_COMMAND + zsh chpwd).
+let _pt_auto_ls_enabled = ($_pt_config | get -i "general.auto_ls" | default "true")
+if $_pt_auto_ls_enabled == "true" {
+  let _pt_pwd_ls_hook = {|before, after|
+    if ($before | is-empty) { return }
+    if (which eza | is-empty | not) {
+      ^eza --icons=always --group-directories-first --color=always
+    } else {
+      ls
+    }
+  }
+  $env.config = ($env.config | default {} | upsert hooks {|hooks|
+    let h = ($hooks | default {})
+    let ec = ($h | get -i env_change | default {})
+    let pwd_hooks = ($ec | get -i PWD | default [])
+    let new_ec = ($ec | upsert PWD ($pwd_hooks | append $_pt_pwd_ls_hook))
+    $h | upsert env_change $new_ec
+  })
+}
+
 if not ($env | get -i PHOTONTOASTER_SESSION_INIT | is-empty | not) {
   $env.PHOTONTOASTER_SESSION_INIT = "1"
 

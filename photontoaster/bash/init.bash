@@ -94,3 +94,30 @@ if [[ -z "${PHOTONTOASTER_SESSION_INIT:-}" ]]; then
     fi
   fi
 fi
+
+# Auto-ls on directory change (same idea as PowerShell prompt + zsh chpwd: compare PWD each prompt).
+if [[ "${_pt_config[general.auto_ls]:-true}" == "true" ]]; then
+  _pt_auto_ls_run() {
+    if command -v eza &>/dev/null; then
+      eza --icons=always --group-directories-first --color=always 2>/dev/null || command ls -A 2>/dev/null || command ls
+    else
+      command ls -A --color=auto 2>/dev/null || command ls -A 2>/dev/null || command ls
+    fi
+  }
+  _pt_auto_ls_prompt() {
+    if [[ -z "${_pt_auto_ls_initialized:-}" ]]; then
+      _pt_auto_ls_initialized=1
+      _pt_last_pwd_auto_ls="$PWD"
+      return
+    fi
+    if [[ "$PWD" != "$_pt_last_pwd_auto_ls" ]]; then
+      _pt_last_pwd_auto_ls="$PWD"
+      _pt_auto_ls_run
+    fi
+  }
+  if [[ -n "${PROMPT_COMMAND:-}" ]]; then
+    PROMPT_COMMAND="_pt_auto_ls_prompt;${PROMPT_COMMAND}"
+  else
+    PROMPT_COMMAND="_pt_auto_ls_prompt"
+  fi
+fi
