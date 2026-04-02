@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "yBRnaTZnRBE=",
+  "success": true,
+  "projectFilePath": "c:\\Scripts\\cool-scripts\\powershell\\cd-path-predictor\\CdPathPredictor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\dwbas\\.nuget\\packages\\microsoft.powershell.sdk\\7.5.1\\microsoft.powershell.sdk.7.5.1.nupkg.sha512"
+  ],
+  "logs": []
+}

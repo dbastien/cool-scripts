@@ -21,7 +21,7 @@ public sealed class RealCdPredictor : ICommandPredictor
 
     public string Name => "RealCdPath";
 
-    public string Description => "Predicts only real Set-Location targets by reusing PowerShell completion and filtering to container paths.";
+    public string Description => "Predicts Set-Location targets under the current directory using PowerShell completion and ProviderContainer matches.";
 
     public SuggestionPackage GetSuggestion(PredictionClient client, PredictionContext context, CancellationToken cancellationToken)
     {
@@ -66,6 +66,12 @@ public sealed class RealCdPredictor : ICommandPredictor
             }
 
             if (match.ResultType != CompletionResultType.ProviderContainer)
+            {
+                continue;
+            }
+
+            if (!TryResolveDirectoryPath(match.CompletionText, currentDirectory, out var resolvedTarget)
+                || !IsStrictSubdirectoryOf(resolvedTarget, currentDirectory))
             {
                 continue;
             }
@@ -190,6 +196,63 @@ public sealed class RealCdPredictor : ICommandPredictor
     private static bool EndsWithWhitespace(string text)
     {
         return text.Length > 0 && char.IsWhiteSpace(text[^1]);
+    }
+
+    /// <summary>
+    /// Maps completion text to a real filesystem directory path (process cwd must match PowerShell location).
+    /// </summary>
+    private static bool TryResolveDirectoryPath(string completionText, string currentDirectory, out string fullPath)
+    {
+        fullPath = string.Empty;
+        if (string.IsNullOrWhiteSpace(completionText))
+        {
+            return false;
+        }
+
+        var t = completionText.TrimEnd('/', '\\');
+        var providerSep = t.IndexOf("::", StringComparison.Ordinal);
+        if (providerSep >= 0 && providerSep + 2 < t.Length)
+        {
+            t = t[(providerSep + 2)..];
+        }
+
+        try
+        {
+            fullPath = Path.IsPathFullyQualified(t)
+                ? Path.GetFullPath(t)
+                : Path.GetFullPath(Path.Combine(currentDirectory, t));
+            return Directory.Exists(fullPath);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// True only if <paramref name="childFullPath"/> is a proper subdirectory of <paramref name="parentFullPath"/>,
+    /// so we do not suggest jumping to unrelated trees (e.g. /bar when cwd is /foo).
+    /// </summary>
+    private static bool IsStrictSubdirectoryOf(string childFullPath, string parentFullPath)
+    {
+        try
+        {
+            var par = Path.GetFullPath(parentFullPath);
+            var chi = Path.GetFullPath(childFullPath);
+            if (!par.EndsWith(Path.DirectorySeparatorChar) && !par.EndsWith(Path.AltDirectorySeparatorChar))
+            {
+                par += Path.DirectorySeparatorChar;
+            }
+
+            var cmp = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+            return chi.StartsWith(par, cmp) && chi.Length > par.Length;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private sealed record CacheEntry(CacheKey Key, DateTimeOffset CreatedAt, PredictiveSuggestion[] Suggestions);

@@ -1,0 +1,5 @@
+c:\Scripts\cool-scripts\powershell\cd-path-predictor\obj\Release\net6.0\CdPathPredictor.GeneratedMSBuildEditorConfig.editorconfig
+c:\Scripts\cool-scripts\powershell\cd-path-predictor\obj\Release\net6.0\CdPathPredictor.AssemblyInfoInputs.cache
+c:\Scripts\cool-scripts\powershell\cd-path-predictor\obj\Release\net6.0\CdPathPredictor.AssemblyInfo.cs
+c:\Scripts\cool-scripts\powershell\cd-path-predictor\obj\Release\net6.0\CdPathPredictor.csproj.CoreCompileInputs.cache
+c:\Scripts\cool-scripts\powershell\cd-path-predictor\obj\Release\net6.0\CdPathPredictor.sourcelink.json
