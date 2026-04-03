@@ -1,9 +1,13 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
-; >^ = Right Ctrl; + = Shift
-Hotkey ">^r", OpenRecycleBin
-Hotkey ">^+r", EmptyRecycleBin
+; Same pattern as terminal.ahk / obsidian.ahk: RControl & letter + Shift branch.
+RControl & r:: {
+    if GetKeyState("Shift", "P")
+        EmptyRecycleBin()
+    else
+        OpenRecycleBin()
+}
 
 OpenRecycleBin(*) {
     Run "explorer.exe shell:RecycleBinFolder"

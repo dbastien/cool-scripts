@@ -1,2 +1,4 @@
-Capslock::Shift
-return
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+CapsLock::Shift

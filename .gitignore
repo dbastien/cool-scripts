@@ -2,3 +2,7 @@ powershell/cd-path-predictor/obj/
 
 obsidian/explorer-cut-paste/node_modules/
 
+
+ahk/autocorrect/AutoCorrect_User.ahk
+
+ahk/autocorrect/AutoCorrectsLog.txt

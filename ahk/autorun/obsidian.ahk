@@ -10,12 +10,18 @@ global g_obsidianExe := A_ProgramFiles "\Obsidian\Obsidian.exe"
 global g_vaultPath := "everything\Welcome"
 
 ; If non-empty, cold launch uses obsidian://open?vault=... (must match the name
-; in Obsidian's vault list). Enables obsidian://search for RControl & Shift & o.
+; in Obsidian's vault list). Enables obsidian://search for RControl+Shift+o.
 global g_obsidianVaultName := ""
 
-; --- Hotkeys (match sibling scripts: RControl & letter) ---
-RControl & o::ObsidianOpenOrActivate()
-RControl & Shift & o::ObsidianSearchPrompt()
+; --- Hotkeys ---
+; RControl+Shift+o can't be "RControl & Shift & o" in v2 (only two keys in & combos).
+; Branch inside RControl & o:: — #HotIf+letter was flaky like terminal.ahk.
+RControl & o:: {
+    if GetKeyState("Shift", "P")
+        ObsidianSearchPrompt()
+    else
+        ObsidianOpenOrActivate()
+}
 
 ObsidianOpenOrActivate() {
     if hwnd := WinExist("ahk_exe Obsidian.exe") {
@@ -40,7 +46,7 @@ ObsidianOpenOrActivate() {
 
 ObsidianSearchPrompt() {
     if (g_obsidianVaultName = "") {
-        MsgBox "Set g_obsidianVaultName to use search (obsidian:// URI).", "Obsidian", "Iconi T5"
+        MsgBox "Set g_obsidianVaultName to use search (obsidian:// URI).", "Obsidian", "Icon! T5"
         return
     }
     ib := InputBox("Search query (opens in Obsidian)", "Obsidian search", , "")

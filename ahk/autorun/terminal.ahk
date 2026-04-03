@@ -8,10 +8,16 @@ global g_wtExe := "wt.exe"
 global g_wtLaunchArgs := ""
 ; Extra args for RControl & Shift & t (new tab), e.g. -p "PowerShell".
 global g_wtNewTabArgs := ""
-
-; --- Hotkeys (match sibling scripts: RControl & letter) ---
-RControl & t::TerminalOpenOrActivate()
-RControl & Shift & t::TerminalNewTab()
+    
+; --- Hotkeys ---
+; v2 allows only two keys in "key & key" combos; RControl+Shift+t needs a branch.
+; (Obsidian uses #HotIf+letter; plain t under #HotIf can be flaky here.)
+RControl & t:: {
+    if GetKeyState("Shift", "P")
+        TerminalNewTab()
+    else
+        TerminalOpenOrActivate()
+}
 
 TerminalOpenOrActivate() {
     if hwnd := WinExist("ahk_exe WindowsTerminal.exe") {
